@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guardian SRM — Platform Admin</title>
+<script>
+  window.__SRM_CONFIG = {
+    supabaseUrl: 'https://czlqjrfmtpmiicfzuzys.supabase.co',
+    supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6bHFqcmZtdHBtaWljZnp1enlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NTU2ODMsImV4cCI6MjA5NjUzMTY4M30.ZuqNYAOqeOyIQq1vMRtaailvz-6vbNIxUc_BaEmtytU'
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;font-size:13px;background:#F7F6F2;color:#1A1816;min-height:100vh}
+.header{background:#1A1816;padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.header-logo{font-family:'DM Serif Display',serif;font-size:18px;color:#fff}
+.header-sub{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:.12em;text-transform:uppercase;margin-left:10px}
+.header-right{display:flex;align-items:center;gap:12px}
+.admin-badge{font-size:10px;background:rgba(239,68,68,.2);color:#FCA5A5;padding:3px 10px;border-radius:20px;border:1px solid rgba(239,68,68,.3)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid rgba(255,255,255,.15);background:transparent;color:rgba(255,255,255,.7);transition:all .15s;font-family:'DM Sans',sans-serif}
+.btn:hover{background:rgba(255,255,255,.1);color:#fff}
+.btn-primary{background:#2563EB;color:#fff;border-color:#2563EB}
+.btn-primary:hover{background:#1D4ED8}
+.btn-danger{background:rgba(239,68,68,.15);color:#FCA5A5;border-color:rgba(239,68,68,.3)}
+.btn-sm{padding:5px 10px;font-size:11px}
+.content{padding:28px;max-width:1200px;margin:0 auto}
+.metrics-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px}
+.metric-card{background:#fff;border:1px solid #E2DED6;border-radius:14px;padding:16px 18px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.metric-lbl{font-size:11px;color:#9C9690;margin-bottom:6px}
+.metric-val{font-size:28px;font-weight:300;font-family:'DM Serif Display',serif;color:#1A1816;line-height:1}
+.metric-sub{font-size:10px;color:#9C9690;margin-top:4px}
+.metric-card.accent-green .metric-val{color:#15803D}
+.metric-card.accent-blue .metric-val{color:#1D4ED8}
+.metric-card.accent-purple .metric-val{color:#7C3AED}
+.metric-card.accent-red .metric-val{color:#B91C1C}
+.card{background:#fff;border:1px solid #E2DED6;border-radius:14px;padding:20px 22px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.card-title{font-size:13px;font-weight:500;color:#1A1816;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card-title i{color:#2563EB;font-size:14px}
+.section-title{font-family:'DM Serif Display',serif;font-size:20px;color:#1A1816;margin-bottom:16px}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:10px 12px;font-size:10px;font-weight:500;color:#9C9690;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid #E2DED6;background:#F7F6F2}
+td{padding:11px 12px;border-bottom:1px solid #E2DED6;font-size:12px;color:#1A1816;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#F7F6F2}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500}
+.badge-active{background:#F0FDF4;color:#15803D;border:1px solid #BBF7D0}
+.badge-pilot{background:#F7F6F2;color:#6B6560;border:1px solid #E2DED6}
+.badge-starter{background:#EFF6FF;color:#1D4ED8;border:1px solid #BFDBFE}
+.badge-professional{background:#F5F3FF;color:#7C3AED;border:1px solid #DDD6FE}
+.badge-enterprise{background:#FEF2F2;color:#B91C1C;border:1px solid #FECACA}
+.badge-expired{background:#FEF2F2;color:#B91C1C;border:1px solid #FECACA}
+.badge-warn{background:#FFFBEB;color:#B45309;border:1px solid #FDE68A}
+.avatar{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:500;flex-shrink:0;font-size:11px}
+.form-input,.form-select{width:100%;padding:8px 11px;font-size:12px;border:1px solid #E2DED6;border-radius:10px;background:#fff;color:#1A1816;font-family:'DM Sans',sans-serif}
+.form-input:focus,.form-select:focus{outline:none;border-color:#2563EB}
+.form-group{margin-bottom:12px}
+.form-label{font-size:11px;font-weight:500;color:#6B6560;margin-bottom:5px;display:block}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;align-items:flex-start;justify-content:center;padding-top:60px}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:20px;border:1px solid #E2DED6;box-shadow:0 4px 12px rgba(0,0,0,.08);width:min(520px,95vw);max-height:80vh;overflow-y:auto}
+.modal-header{padding:18px 22px 14px;border-bottom:1px solid #E2DED6;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff}
+.modal-title{font-family:'DM Serif Display',serif;font-size:18px}
+.modal-close{width:28px;height:28px;border-radius:8px;border:1px solid #E2DED6;background:#F7F6F2;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#6B6560;font-size:14px}
+.modal-body{padding:18px 22px}
+.modal-footer{padding:14px 22px;border-top:1px solid #E2DED6;display:flex;gap:8px;justify-content:flex-end}
+.notif{display:flex;align-items:center;gap:10px;padding:11px 16px;border-radius:10px;margin-bottom:14px;font-size:12px;border:1px solid}
+.notif-warn{background:#FFFBEB;color:#B45309;border-color:#FDE68A}
+.notif-success{background:#F0FDF4;color:#15803D;border-color:#BBF7D0}
+.notif-danger{background:#FEF2F2;color:#B91C1C;border-color:#FECACA}
+.toast-el{position:fixed;bottom:24px;right:24px;z-index:999;background:#1A1816;color:#fff;font-size:12px;font-weight:500;padding:11px 18px;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,.15);display:none;align-items:center;gap:8px}
+.toast-el.show{display:flex;animation:slideUp .2s ease}
+@keyframes slideUp{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+.tab-bar{display:flex;gap:2px;border-bottom:1px solid #E2DED6;margin-bottom:20px}
+.tab-btn{padding:9px 16px;font-size:12px;cursor:pointer;border:none;background:none;color:#6B6560;font-family:'DM Sans',sans-serif;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.tab-btn:hover{color:#1A1816}
+.tab-btn.active{color:#2563EB;border-bottom-color:#2563EB;font-weight:500}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.auth-screen{position:fixed;inset:0;background:#1A1816;display:flex;align-items:center;justify-content:center;z-index:500}
+.auth-card{background:#fff;border-radius:20px;padding:36px 40px;width:min(400px,95vw)}
+.kv-row{display:flex;align-items:flex-start;padding:7px 0;border-bottom:1px solid #E2DED6;gap:10px;font-size:12px}
+.kv-row:last-child{border-bottom:none}
+.kv-key{font-size:11px;color:#9C9690;min-width:130px;flex-shrink:0}
+</style>
+</head>
+<body>
+
+<div id="auth-screen" class="auth-screen">
+  <div class="auth-card">
+    <div style="font-family:'DM Serif Display',serif;font-size:24px;margin-bottom:4px">Guardian SRM</div>
+    <div style="font-size:11px;color:#9C9690;letter-spacing:.1em;text-transform:uppercase;margin-bottom:24px">Platform Administration</div>
+    <div id="auth-error" style="display:none;background:#FEF2F2;color:#B91C1C;border:1px solid #FECACA;border-radius:10px;padding:10px 14px;font-size:12px;margin-bottom:14px"></div>
+    <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="admin-email" placeholder="your@email.com"></div>
+    <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="admin-password" placeholder="Password"></div>
+    <button onclick="adminLogin()" style="width:100%;padding:10px;background:#2563EB;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:4px">Sign in to admin</button>
+  </div>
+</div>
+
+<div id="admin-shell" style="display:none">
+  <header class="header">
+    <div style="display:flex;align-items:center">
+      <span class="header-logo">Guardian SRM</span>
+      <span class="header-sub">Platform Admin</span>
+    </div>
+    <div class="header-right">
+      <span class="admin-badge"><i class="fa-solid fa-shield-halved" style="font-size:9px"></i> Super Admin</span>
+      <span id="admin-user-name" style="font-size:12px;color:rgba(255,255,255,.6)"></span>
+      <button class="btn btn-sm" onclick="adminSignOut()"><i class="fa-solid fa-right-from-bracket"></i> Sign out</button>
+    </div>
+  </header>
+
+  <div class="content">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+      <div>
+        <div class="section-title">Platform overview</div>
+        <div style="font-size:12px;color:#6B6560" id="admin-last-updated"></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-sm" style="color:#1A1816;border-color:#E2DED6;background:#fff" onclick="loadPlatformStats()">
+          <i class="fa-solid fa-rotate"></i> Refresh
+        </button>
+        <button class="btn btn-sm btn-primary" onclick="openAddOrgModal()">
+          <i class="fa-solid fa-plus"></i> Add organisation
+        </button>
+      </div>
+    </div>
+
+    <div class="metrics-row" id="admin-metrics"></div>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchAdminTab('organisations')">Organisations</button>
+      <button class="tab-btn" onclick="switchAdminTab('licences')">Licences & revenue</button>
+      <button class="tab-btn" onclick="switchAdminTab('admins')">Platform admins</button>
+      <button class="tab-btn" onclick="switchAdminTab('activity')">Recent activity</button>
+    </div>
+
+    <div class="tab-panel active" id="tab-organisations"></div>
+    <div class="tab-panel" id="tab-licences"></div>
+    <div class="tab-panel" id="tab-admins"></div>
+    <div class="tab-panel" id="tab-activity"></div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Modal</div>
+      <button class="modal-close" onclick="closeAdminModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+
+<div class="toast-el" id="admin-toast"><i class="fa-solid fa-circle-check" style="color:#4ADE80"></i><span id="admin-toast-msg"></span></div>
+
+<script>
+const { createClient } = supabase;
+const sb = createClient(window.__SRM_CONFIG.supabaseUrl, window.__SRM_CONFIG.supabaseKey);
+
+let ADMIN_USER = null;
+let PLATFORM_STATS = null;
+
+// ── Auth ──
+async function adminLogin() {
+  const email = document.getElementById('admin-email')?.value.trim();
+  const password = document.getElementById('admin-password')?.value;
+  const errEl = document.getElementById('auth-error');
+  errEl.style.display = 'none';
+  if (!email || !password) { errEl.textContent = 'Please enter email and password'; errEl.style.display = 'block'; return; }
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; return; }
+  // Check super admin
+  const { data: profile } = await sb.from('users').select('*').eq('id', data.user.id).single();
+  if (!profile?.is_super_admin && !profile?.is_sub_admin) {
+    await sb.auth.signOut();
+    errEl.textContent = 'Access denied — platform admin privileges required';
+    errEl.style.display = 'block';
+    return;
+  }
+  ADMIN_USER = { ...data.user, ...profile };
+  document.getElementById('admin-user-name').textContent = profile.full_name || email;
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('admin-shell').style.display = 'block';
+  loadPlatformStats();
+}
+
+async function adminSignOut() {
+  await sb.auth.signOut();
+  window.location.reload();
+}
+
+// ── Platform stats ──
+async function loadPlatformStats() {
+  document.getElementById('admin-metrics').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:#9C9690"><i class="fa-solid fa-spinner fa-spin"></i> Loading…</div>';
+  const { data, error } = await sb.rpc('get_platform_stats');
+  if (error) { adminToast('Error loading stats: ' + error.message); return; }
+  PLATFORM_STATS = data;
+  document.getElementById('admin-last-updated').textContent = 'Last updated: ' + new Date().toLocaleTimeString('en-GB');
+  renderAdminMetrics();
+  renderOrganisations();
+  renderLicences();
+  renderActivity();
+}
+
+function renderAdminMetrics() {
+  const s = PLATFORM_STATS;
+  const expiringCount = (s.orgs || []).filter(o => {
+    if (!o.licence_expires_at) return false;
+    const days = Math.round((new Date(o.licence_expires_at) - new Date()) / 86400000);
+    return days >= 0 && days <= 90;
+  }).length;
+
+  document.getElementById('admin-metrics').innerHTML = `
+    <div class="metric-card"><div class="metric-lbl">Organisations</div><div class="metric-val">${s.total_orgs||0}</div><div class="metric-sub">Active clients</div></div>
+    <div class="metric-card accent-blue"><div class="metric-lbl">Total suppliers</div><div class="metric-val">${s.total_suppliers||0}</div><div class="metric-sub">Across all orgs</div></div>
+    <div class="metric-card accent-purple"><div class="metric-lbl">Total users</div><div class="metric-val">${s.total_users||0}</div><div class="metric-sub">Active accounts</div></div>
+    <div class="metric-card accent-green"><div class="metric-lbl">Total revenue</div><div class="metric-val">$${Number(s.total_revenue||0).toLocaleString()}</div><div class="metric-sub">All time</div></div>
+    <div class="metric-card accent-red"><div class="metric-lbl">Active licences</div><div class="metric-val">${s.active_licences||0}</div><div class="metric-sub">${expiringCount > 0 ? `${expiringCount} expiring within 90 days` : 'All current'}</div></div>`;
+}
+
+function renderOrganisations() {
+  const orgs = PLATFORM_STATS?.orgs || [];
+  const el = document.getElementById('tab-organisations');
+  if (!orgs.length) { el.innerHTML = '<div style="text-align:center;padding:40px;color:#9C9690">No organisations yet</div>'; return; }
+  el.innerHTML = `
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr>
+          <th>Organisation</th><th>Plan</th><th>Suppliers</th><th>Users</th>
+          <th>Licence expires</th><th>Revenue</th><th>Status</th><th></th>
+        </tr></thead>
+        <tbody>
+          ${orgs.map(o => {
+            const expiry = o.licence_expires_at ? new Date(o.licence_expires_at) : null;
+            const daysLeft = expiry ? Math.round((expiry - new Date()) / 86400000) : null;
+            const isExpiring = daysLeft !== null && daysLeft >= 0 && daysLeft <= 90;
+            const isExpired = daysLeft !== null && daysLeft < 0;
+            const planBadge = `badge-${o.plan||'pilot'}`;
+            return `<tr>
+              <td>
+                <div style="font-weight:500">${o.name}</div>
+                <div style="font-size:10px;color:#9C9690">${o.created_at?.slice(0,10)}</div>
+              </td>
+              <td><span class="badge ${planBadge}">${o.plan||'pilot'}</span></td>
+              <td style="font-weight:500">${o.supplier_count||0}</td>
+              <td>${o.user_count||0}</td>
+              <td>
+                ${expiry ? `<span style="color:${isExpired?'#B91C1C':isExpiring?'#B45309':'#15803D'};font-size:12px">${expiry.toLocaleDateString('en-GB')}</span>
+                ${isExpiring && !isExpired ? `<span class="badge badge-warn" style="margin-left:4px;font-size:9px">${daysLeft}d</span>` : ''}
+                ${isExpired ? `<span class="badge badge-expired" style="margin-left:4px;font-size:9px">Expired</span>` : ''}` : '<span style="color:#9C9690">Pilot</span>'}
+              </td>
+              <td style="font-weight:500">${o.last_licence ? '$' + Number(o.last_licence.amount_usd||0).toLocaleString() : '—'}</td>
+              <td><span class="badge ${o.active?'badge-active':'badge-expired'}">${o.active?'Active':'Inactive'}</span></td>
+              <td>
+                <div style="display:flex;gap:4px">
+                  <button class="btn btn-sm" style="color:#1A1816;border-color:#E2DED6;background:#fff" onclick="viewOrg('${o.id}')"><i class="fa-solid fa-eye"></i></button>
+                  <button class="btn btn-sm" style="color:#1A1816;border-color:#E2DED6;background:#fff" onclick="issueManualLicence('${o.id}','${o.name}')"><i class="fa-solid fa-key"></i></button>
+                  ${o.active ? `<button class="btn btn-sm btn-danger" onclick="deactivateOrg('${o.id}','${o.name}')"><i class="fa-solid fa-ban"></i></button>` : `<button class="btn btn-sm" style="color:#15803D;border-color:#BBF7D0;background:#F0FDF4" onclick="reactivateOrg('${o.id}')"><i class="fa-solid fa-check"></i></button>`}
+                </div>
+              </td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function renderLicences() {
+  const orgs = PLATFORM_STATS?.orgs || [];
+  const el = document.getElementById('tab-licences');
+  const byPlan = { pilot:0, starter:0, professional:0, enterprise:0 };
+  const revenueByPlan = { pilot:0, starter:0, professional:0, enterprise:0 };
+  orgs.forEach(o => {
+    byPlan[o.plan||'pilot'] = (byPlan[o.plan||'pilot']||0) + 1;
+    revenueByPlan[o.plan||'pilot'] = (revenueByPlan[o.plan||'pilot']||0) + (o.last_licence?.amount_usd||0);
+  });
+  const totalRevenue = Object.values(revenueByPlan).reduce((a,b)=>a+b,0);
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:20px">
+      ${Object.entries(byPlan).map(([plan, count]) => `
+        <div class="card" style="padding:16px;border-left:3px solid ${plan==='pilot'?'#9C9690':plan==='starter'?'#1D4ED8':plan==='professional'?'#7C3AED':'#B91C1C'}">
+          <div style="font-size:11px;color:#9C9690;text-transform:capitalize;margin-bottom:6px">${plan}</div>
+          <div style="font-size:22px;font-weight:300;font-family:'DM Serif Display',serif">${count}</div>
+          <div style="font-size:11px;color:#9C9690;margin-top:4px">$${Number(revenueByPlan[plan]||0).toLocaleString()} revenue</div>
+        </div>`).join('')}
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="fa-solid fa-chart-bar"></i> Revenue breakdown</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+        <div style="flex:1;height:12px;background:#F0EEE8;border-radius:6px;overflow:hidden;display:flex">
+          ${Object.entries(revenueByPlan).filter(([,v])=>v>0).map(([plan, rev]) => `
+            <div style="width:${totalRevenue>0?Math.round((rev/totalRevenue)*100):0}%;background:${plan==='starter'?'#2563EB':plan==='professional'?'#7C3AED':plan==='enterprise'?'#B91C1C':'#9C9690'};transition:width .3s"></div>`).join('')}
+        </div>
+        <div style="font-size:13px;font-weight:500">$${Number(totalRevenue).toLocaleString()}</div>
+      </div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap">
+        ${Object.entries(revenueByPlan).filter(([,v])=>v>0).map(([plan, rev]) => `
+          <div style="display:flex;align-items:center;gap:6px;font-size:11px">
+            <div style="width:8px;height:8px;border-radius:50%;background:${plan==='starter'?'#2563EB':plan==='professional'?'#7C3AED':plan==='enterprise'?'#B91C1C':'#9C9690'}"></div>
+            <span style="text-transform:capitalize">${plan}</span>
+            <span style="color:#9C9690">$${Number(rev).toLocaleString()}</span>
+          </div>`).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="fa-solid fa-calendar"></i> Upcoming licence renewals</div>
+      ${orgs.filter(o => {
+        if (!o.licence_expires_at) return false;
+        const days = Math.round((new Date(o.licence_expires_at) - new Date()) / 86400000);
+        return days >= 0 && days <= 180;
+      }).sort((a,b) => new Date(a.licence_expires_at) - new Date(b.licence_expires_at))
+      .map(o => {
+        const days = Math.round((new Date(o.licence_expires_at) - new Date()) / 86400000);
+        return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #E2DED6;font-size:12px">
+          <div style="flex:1"><div style="font-weight:500">${o.name}</div><div style="font-size:10px;color:#9C9690">${o.plan} · expires ${new Date(o.licence_expires_at).toLocaleDateString('en-GB')}</div></div>
+          <span class="badge ${days<=30?'badge-expired':days<=90?'badge-warn':'badge-active'}">${days} days</span>
+          <button class="btn btn-sm" style="color:#1A1816;border-color:#E2DED6;background:#fff" onclick="issueManualLicence('${o.id}','${o.name}')"><i class="fa-solid fa-key"></i> Renew</button>
+        </div>`;
+      }).join('') || '<div style="font-size:12px;color:#9C9690;text-align:center;padding:20px">No renewals due within 180 days</div>'}
+    </div>`;
+}
+
+async function renderActivity() {
+  const el = document.getElementById('tab-activity');
+  el.innerHTML = '<div style="text-align:center;padding:20px;color:#9C9690"><i class="fa-solid fa-spinner fa-spin"></i></div>';
+  const { data } = await sb.from('audit_log').select('*, organisations(name)').order('created_at', { ascending: false }).limit(50);
+  if (!data?.length) { el.innerHTML = '<div style="text-align:center;padding:40px;color:#9C9690">No activity yet</div>'; return; }
+  const typeColors = { Supplier:'#2563EB', Contract:'#16A34A', Questionnaire:'#7C3AED', SLA:'#B45309', Action:'#B91C1C', Risk:'#DC2626' };
+  el.innerHTML = `<div class="card" style="padding:0;overflow:hidden">
+    <table>
+      <thead><tr><th>Date / Time</th><th>Organisation</th><th>Type</th><th>Event</th><th>User</th></tr></thead>
+      <tbody>${data.map(e => `<tr>
+        <td style="white-space:nowrap;font-size:11px;color:#9C9690">${new Date(e.created_at).toLocaleString('en-GB')}</td>
+        <td style="font-size:11px;font-weight:500">${e.organisations?.name||'—'}</td>
+        <td><span style="font-size:10px;padding:2px 7px;border-radius:10px;background:${typeColors[e.event_type]||'#9C9690'}1a;color:${typeColors[e.event_type]||'#9C9690'}">${e.event_type}</span></td>
+        <td style="font-size:11px;max-width:300px">${e.event_text}</td>
+        <td style="font-size:11px;color:#9C9690">${e.performed_by}</td>
+      </tr>`).join('')}</tbody>
+    </table>
+  </div>`;
+}
+
+function switchAdminTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+  if (tab === 'admins') renderAdmins();
+}
+
+async function renderAdmins() {
+  const el = document.getElementById('tab-admins');
+  el.innerHTML = '<div style="text-align:center;padding:20px;color:#9C9690"><i class="fa-solid fa-spinner fa-spin"></i></div>';
+  const { data: admins } = await sb.from('users').select('*').or('is_super_admin.eq.true,is_sub_admin.eq.true').order('created_at');
+  el.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div style="font-size:13px;color:#6B6560">${admins?.length||0} platform administrator${(admins?.length||0)!==1?'s':''}</div>
+      <button class="btn btn-sm btn-primary" onclick="openAddSubAdminModal()"><i class="fa-solid fa-user-plus"></i> Add sub-admin</button>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table>
+        <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Created</th><th></th></tr></thead>
+        <tbody>
+          ${(admins||[]).map(u => `<tr>
+            <td style="font-weight:500">${u.full_name||'—'}</td>
+            <td style="color:#6B6560">${u.email}</td>
+            <td>
+              ${u.is_super_admin
+                ? '<span class="badge" style="background:rgba(239,68,68,.1);color:#EF4444;border:1px solid rgba(239,68,68,.2)">Super Admin</span>'
+                : '<span class="badge" style="background:rgba(251,191,36,.1);color:#F59E0B;border:1px solid rgba(251,191,36,.2)">Sub Admin</span>'}
+            </td>
+            <td style="color:#9C9690;font-size:11px">${u.created_at?.slice(0,10)}</td>
+            <td>
+              ${!u.is_super_admin ? `<button class="btn btn-sm btn-danger" onclick="removeSubAdmin('${u.id}','${u.full_name||u.email}')"><i class="fa-solid fa-user-minus"></i> Remove</button>` : '<span style="font-size:11px;color:#9C9690">Cannot remove</span>'}
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div class="card" style="margin-top:16px;background:#FFFBEB;border-color:#FDE68A">
+      <div style="font-size:13px;color:#B45309;font-weight:500;margin-bottom:6px"><i class="fa-solid fa-triangle-exclamation"></i> Sub-admin permissions</div>
+      <div style="font-size:12px;color:#92400E;line-height:1.7">
+        Sub-admins can: view all organisations, issue manual licences, activate/deactivate organisations, view revenue and activity.<br>
+        Sub-admins cannot: create or remove other admins, delete organisations, or access Supabase directly.
+      </div>
+    </div>`;
+}
+
+function openAddSubAdminModal() {
+  openAdminModal('Add platform sub-admin', `
+    <div class="notif notif-warn"><i class="fa-solid fa-triangle-exclamation"></i> Sub-admins have full visibility of all client organisations and revenue. Only add trusted team members.</div>
+    <div class="form-group"><label class="form-label">Email address *</label><input class="form-input" type="email" id="sa-email" placeholder="colleague@guardian-tprm.com"></div>
+    <div class="form-group"><label class="form-label">Full name *</label><input class="form-input" id="sa-name" placeholder="e.g. James Hartley"></div>
+    <div class="form-group"><label class="form-label">Temporary password *</label><input class="form-input" type="password" id="sa-password" placeholder="They can change this after first login"></div>`,
+    `<button class="btn" style="color:#1A1816;border-color:#E2DED6;background:#fff" onclick="closeAdminModal()">Cancel</button>
+     <button class="btn btn-primary" onclick="createSubAdmin()"><i class="fa-solid fa-user-plus"></i> Create sub-admin</button>`
+  );
+}
+
+async function createSubAdmin() {
+  const email = document.getElementById('sa-email')?.value.trim();
+  const name = document.getElementById('sa-name')?.value.trim();
+  const password = document.getElementById('sa-password')?.value;
+  if (!email || !name || !password) { adminToast('Please fill in all fields'); return; }
+  if (password.length < 8) { adminToast('Password must be at least 8 characters'); return; }
+
+  // Create auth user
+  const { data, error } = await sb.auth.admin?.createUser({
+    email, password, email_confirm: true,
+    user_metadata: { full_name: name }
+  });
+
+  // Fallback — use signUp if admin API not available
+  if (error) {
+    const { data: signupData, error: signupErr } = await sb.auth.signUp({ email, password, options: { data: { full_name: name } } });
+    if (signupErr) { adminToast('Error: ' + signupErr.message); return; }
+    // Mark as sub-admin in users table using a special org
+    await sb.from('users').upsert({
+      id: signupData.user.id, email, full_name: name,
+      role: 'admin', is_sub_admin: true, active: true,
+      org_id: '00000000-0000-0000-0000-000000000000', // placeholder org
+    });
+  } else {
+    await sb.from('users').upsert({
+      id: data.user.id, email, full_name: name,
+      role: 'admin', is_sub_admin: true, active: true,
+      org_id: '00000000-0000-0000-0000-000000000000',
+    });
+  }
+  closeAdminModal();
+  adminToast(`Sub-admin created for ${name} — they can now sign in at app.guardian-tprm.com/admin.html`);
+  renderAdmins();
+}
+
+async function removeSubAdmin(userId, name) {
+  if (!confirm(`Remove sub-admin access for ${name}? They will no longer be able to access the admin dashboard.`)) return;
+  await sb.from('users').update({ is_sub_admin: false }).eq('id', userId);
+  adminToast(`${name} removed from platform admins`);
+  renderAdmins();
+}
+
+// ── Org actions ──
+function viewOrg(orgId) {
+  const org = PLATFORM_STATS?.orgs?.find(o => o.id === orgId);
+  if (!org) return;
+  const expiry = org.licence_expires_at ? new Date(org.licence_expires_at) : null;
+  openAdminModal(`${org.name}`, `
+    <div class="kv-row"><span class="kv-key">Plan</span><span><span class="badge badge-${org.plan||'pilot'}">${org.plan||'pilot'}</span></span></div>
+    <div class="kv-row"><span class="kv-key">Suppliers</span><span>${org.supplier_count||0} / ${org.plan==='professional'?200:org.plan==='starter'?50:25}</span></div>
+    <div class="kv-row"><span class="kv-key">Users</span><span>${org.user_count||0}</span></div>
+    <div class="kv-row"><span class="kv-key">Created</span><span>${org.created_at?.slice(0,10)}</span></div>
+    <div class="kv-row"><span class="kv-key">Licence expires</span><span>${expiry ? expiry.toLocaleDateString('en-GB') : 'Pilot — no expiry'}</span></div>
+    <div class="kv-row"><span class="kv-key">Last payment</span><span>${org.last_licence ? '$' + Number(org.last_licence.amount_usd).toLocaleString() + ' · ' + org.last_licence.period?.replace('year',' year') : 'None'}</span></div>
+    <div class="kv-row"><span class="kv-key">Status</span><span><span class="badge ${org.active?'badge-active':'badge-expired'}">${org.active?'Active':'Inactive'}</span></span></div>`,
+    `<button class="btn" style="color:#1A1816;border-color:#E2DED6;background:#fff" onclick="closeAdminModal()">Close</button>
+     <button class="btn btn-primary" onclick="closeAdminModal();issueManualLicence('${org.id}','${org.name}')"><i class="fa-solid fa-key"></i> Issue licence</button>`
+  );
+}
+
+function issueManualLicence(orgId, orgName) {
+  openAdminModal(`Issue manual licence — ${orgName}`, `
+    <div class="notif notif-warn"><i class="fa-solid fa-triangle-exclamation"></i> This manually activates a licence for this organisation without requiring payment. Use for Enterprise clients or manual invoice payments.</div>
+    <div class="form-group"><label class="form-label">Plan</label>
+      <select class="form-select" id="ml-plan">
+        <option value="starter">Starter — up to 50 suppliers</option>
+        <option value="professional">Professional — up to 200 suppliers</option>
+        <option value="enterprise">Enterprise — unlimited</option>
+      </select></div>
+    <div class="form-group"><label class="form-label">Licence period</label>
+      <select class="form-select" id="ml-period">
+        <option value="1year">1 year</option>
+        <option value="2year">2 years</option>
+        <option value="3year">3 years</option>
+        <option value="5year">5 years</option>
+      </select></div>
+    <div class="form-group"><label class="form-label">Amount paid (USD)</label>
+      <input class="form-input" type="number" id="ml-amount" placeholder="e.g. 5990"></div>
+    <div class="form-group"><label class="form-label">Invoice / reference number</label>
+      <input class="form-input" id="ml-ref" placeholder="e.g. INV-2026-001"></div>
+    <div class="form-group"><label class="form-label">Notes</label>
+      <input class="form-input" id="ml-notes" placeholder="e.g. Bank transfer received"></div>`,
+    `<button class="btn" style="color:#1A1816;border-color:#E2DED6;background:#fff" onclick="closeAdminModal()">Cancel</button>
+     <button class="btn btn-primary" onclick="confirmManualLicence('${orgId}','${orgName}')"><i class="fa-solid fa-check"></i> Activate licence</button>`
+  );
+}
+
+async function confirmManualLicence(orgId, orgName) {
+  const plan = document.getElementById('ml-plan')?.value;
+  const period = document.getElementById('ml-period')?.value;
+  const amount = parseFloat(document.getElementById('ml-amount')?.value || 0);
+  const ref = document.getElementById('ml-ref')?.value;
+  const years = period === '1year' ? 1 : period === '2year' ? 2 : period === '3year' ? 3 : 5;
+  const expiresAt = new Date();
+  expiresAt.setFullYear(expiresAt.getFullYear() + years);
+
+  await sb.from('licences').insert({
+    org_id: orgId, plan, period, status: 'active',
+    amount_usd: amount, stripe_invoice_id: ref || null,
+    starts_at: new Date().toISOString(),
+    expires_at: expiresAt.toISOString(),
+  });
+
+  const maxSuppliers = plan === 'enterprise' ? 999999 : plan === 'professional' ? 200 : 50;
+  const maxUsers = plan === 'enterprise' ? 999999 : plan === 'professional' ? 15 : 5;
+  await sb.from('organisations').update({
+    plan, max_suppliers: maxSuppliers, max_users: maxUsers,
+    licence_expires_at: expiresAt.toISOString(),
+  }).eq('id', orgId);
+
+  closeAdminModal();
+  adminToast(`Licence activated for ${orgName}`);
+  setTimeout(loadPlatformStats, 500);
+}
+
+async function deactivateOrg(orgId, orgName) {
+  if (!confirm(`Deactivate ${orgName}? Their users will not be able to log in.`)) return;
+  await sb.from('organisations').update({ active: false }).eq('id', orgId);
+  adminToast(`${orgName} deactivated`);
+  setTimeout(loadPlatformStats, 500);
+}
+
+async function reactivateOrg(orgId) {
+  await sb.from('organisations').update({ active: true }).eq('id', orgId);
+  adminToast('Organisation reactivated');
+  setTimeout(loadPlatformStats, 500);
+}
+
+function openAddOrgModal() {
+  openAdminModal('Add organisation manually', `
+    <div class="form-group"><label class="form-label">Organisation name *</label><input class="form-input" id="ao-name" placeholder="e.g. Acme Financial Services"></div>
+    <div class="form-group"><label class="form-label">Admin email *</label><input class="form-input" type="email" id="ao-email" placeholder="admin@organisation.com"></div>
+    <div class="form-group"><label class="form-label">Admin full name</label><input class="form-input" id="ao-fullname" placeholder="e.g. Rachel Nakamura"></div>
+    <div class="form-group"><label class="form-label">Initial plan</label>
+      <select class="form-select" id="ao-plan">
+        <option value="pilot">Pilot (free)</option>
+        <option value="starter">Starter</option>
+        <option value="professional">Professional</option>
+        <option value="enterprise">Enterprise</option>
+      </select></div>`,
+    `<button class="btn" style="color:#1A1816;border-color:#E2DED6;background:#fff" onclick="closeAdminModal()">Cancel</button>
+     <button class="btn btn-primary" onclick="createOrgManually()"><i class="fa-solid fa-plus"></i> Create organisation</button>`
+  );
+}
+
+async function createOrgManually() {
+  const name = document.getElementById('ao-name')?.value.trim();
+  const email = document.getElementById('ao-email')?.value.trim();
+  const fullName = document.getElementById('ao-fullname')?.value.trim();
+  const plan = document.getElementById('ao-plan')?.value;
+  if (!name || !email) { adminToast('Name and email are required'); return; }
+
+  const slug = name.toLowerCase().replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-') + '-' + Date.now();
+  const { data: org, error } = await sb.from('organisations').insert({
+    name, slug, plan, active: true,
+    max_suppliers: plan==='enterprise'?999999:plan==='professional'?200:50,
+    max_users: plan==='enterprise'?999999:plan==='professional'?15:5,
+  }).select().single();
+  if (error) { adminToast('Error: ' + error.message); return; }
+
+  closeAdminModal();
+  adminToast(`${name} created — send them an invitation link to set up their account`);
+  setTimeout(loadPlatformStats, 500);
+}
+
+// ── Modal helpers ──
+function openAdminModal(title, body, footer) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML = body;
+  document.getElementById('modal-footer').innerHTML = footer || '<button class="btn" style="color:#1A1816;border-color:#E2DED6;background:#fff" onclick="closeAdminModal()">Close</button>';
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeAdminModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+
+function adminToast(msg) {
+  const t = document.getElementById('admin-toast');
+  document.getElementById('admin-toast-msg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── Init ──
+window.onload = async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session?.user) {
+    const { data: profile } = await sb.from('users').select('*').eq('id', session.user.id).single();
+    if (profile?.is_super_admin || profile?.is_sub_admin) {
+      ADMIN_USER = { ...session.user, ...profile };
+      document.getElementById('admin-user-name').textContent = profile.full_name || session.user.email;
+      document.getElementById('auth-screen').style.display = 'none';
+      document.getElementById('admin-shell').style.display = 'block';
+      loadPlatformStats();
+      return;
+    }
+  }
+  document.getElementById('auth-screen').style.display = 'flex';
+};
+</script>
+</body>
+</html>

@@ -25,12 +25,117 @@ function showAppShell() {
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('app-shell').style.display  = 'flex';
   updateSidebarUser();
-  setTimeout(() => { if (typeof enforceRoles === 'function') enforceRoles(); }, 100);
+  setTimeout(() => {
+    if (typeof enforceRoles === 'function') enforceRoles();
+    // Show platform admin link for super admins and sub-admins
+    const superAdminNav = document.getElementById('nav-superadmin');
+    if (superAdminNav && (CURRENT_USER?.is_super_admin || CURRENT_USER?.is_sub_admin)) {
+      superAdminNav.style.display = 'flex';
+    }
+  }, 100);
+}
+
+function updateSidebarUser() {
+  const nameEl = document.getElementById('sidebar-user-name');
+  const roleEl = document.getElementById('sidebar-user-role');
+  const avatarEl = document.getElementById('sidebar-avatar');
+  if (nameEl) nameEl.textContent = CURRENT_USER?.full_name || CURRENT_USER?.email || 'User';
+  if (roleEl) roleEl.textContent = CURRENT_USER?.is_super_admin ? 'Super Admin' : CURRENT_USER?.is_sub_admin ? 'Platform Admin' : CURRENT_ORG?.name || 'Organisation';
+  if (avatarEl) {
+    const name = CURRENT_USER?.full_name || '';
+    const initials = name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase() || '??';
+    avatarEl.textContent = initials;
+    if (CURRENT_USER?.is_super_admin) {
+      avatarEl.style.background = 'rgba(248,113,113,.25)';
+      avatarEl.style.color = '#F87171';
+    } else if (CURRENT_USER?.is_sub_admin) {
+      avatarEl.style.background = 'rgba(251,191,36,.2)';
+      avatarEl.style.color = '#FBB040';
+    }
+  }
 }
 
 function renderAuthForm(mode) {
   const el = document.getElementById('auth-form-area');
   const isLogin = mode === 'login';
+  const isSignup = mode === 'signup';
+  const isOrgSignup = mode === 'orgsignup';
+
+  if (isOrgSignup) {
+    el.innerHTML = `
+      <div class="auth-card" style="width:min(520px,100%)">
+        <div class="auth-logo">
+          <span class="auth-logo-mark">Guardian TPRM</span>
+          <span class="auth-logo-sub">Create your organisation</span>
+        </div>
+        <div style="margin-bottom:20px">
+          <div style="display:flex;gap:0;border:1px solid var(--c-border);border-radius:var(--r-md);overflow:hidden;margin-bottom:4px">
+            <div style="flex:1;padding:8px 12px;background:var(--c-surface2);text-align:center;font-size:12px;font-weight:600;color:var(--c-accent);border-right:1px solid var(--c-border)">1. Your details</div>
+            <div style="flex:1;padding:8px 12px;text-align:center;font-size:12px;color:var(--c-text3)">2. Organisation</div>
+            <div style="flex:1;padding:8px 12px;text-align:center;font-size:12px;color:var(--c-text3)">3. Done</div>
+          </div>
+        </div>
+        <div id="auth-error" class="auth-error" style="display:none"></div>
+        <div id="orgsignup-step1">
+          <div class="form-grid">
+            <div class="form-group"><label class="form-label">First name *</label><input class="form-input" id="os-fname" placeholder="Rachel"></div>
+            <div class="form-group"><label class="form-label">Last name *</label><input class="form-input" id="os-lname" placeholder="Nakamura"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Work email *</label><input class="form-input" type="email" id="os-email" placeholder="rachel@organisation.com"></div>
+          <div class="form-group"><label class="form-label">Password *</label><input class="form-input" type="password" id="os-password" placeholder="Minimum 8 characters"></div>
+          <div class="form-group"><label class="form-label">Your role</label>
+            <select class="form-select" id="os-role">
+              <option value="admin">Administrator</option>
+              <option value="ciso">CISO / Head of Security</option>
+              <option value="procurement">Head of Procurement</option>
+            </select>
+          </div>
+          <button class="topbar-btn primary" style="width:100%;justify-content:center;padding:12px" onclick="orgSignupStep2()">Continue →</button>
+        </div>
+        <div id="orgsignup-step2" style="display:none">
+          <div class="form-group"><label class="form-label">Organisation name *</label><input class="form-input" id="os-orgname" placeholder="e.g. Acme Financial Services Ltd"></div>
+          <div class="form-group"><label class="form-label">Country</label>
+            <select class="form-select" id="os-country">
+              <option>United Kingdom</option>
+              <option>Nigeria</option>
+              <option>South Africa</option>
+              <option>Kenya</option>
+              <option>Ghana</option>
+              <option>United States</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Industry</label>
+            <select class="form-select" id="os-industry">
+              <option>Financial Services / Banking</option>
+              <option>Fintech</option>
+              <option>Insurance</option>
+              <option>Professional Services</option>
+              <option>Healthcare</option>
+              <option>Technology</option>
+              <option>Manufacturing</option>
+              <option>Government / Public Sector</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Approximate number of suppliers</label>
+            <select class="form-select" id="os-suppliers">
+              <option value="25">Under 25 — Pilot plan (free)</option>
+              <option value="50">25–50 — Starter plan</option>
+              <option value="200">50–200 — Professional plan</option>
+              <option value="999">200+ — Enterprise plan</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn" style="flex:1;justify-content:center" onclick="document.getElementById('orgsignup-step2').style.display='none';document.getElementById('orgsignup-step1').style.display='block'">← Back</button>
+            <button class="topbar-btn primary" style="flex:2;justify-content:center;padding:12px" onclick="completeOrgSignup()">Create account</button>
+          </div>
+        </div>
+        <div class="auth-switch">Already have an account? <span onclick="renderAuthForm('login')">Sign in</span></div>
+      </div>`;
+    return;
+  }
+
   el.innerHTML = `
     <div class="auth-card">
       <div class="auth-logo">
@@ -59,10 +164,87 @@ function renderAuthForm(mode) {
       </button>
       <div class="auth-switch">
         ${isLogin
-          ? `No account? <span onclick="renderAuthForm('signup')">Create one</span>`
+          ? `New to Guardian TPRM? <span onclick="renderAuthForm('orgsignup')">Create your organisation</span>`
           : `Already have an account? <span onclick="renderAuthForm('login')">Sign in</span>`}
       </div>
     </div>`;
+}
+
+function orgSignupStep2() {
+  const fname = document.getElementById('os-fname')?.value.trim();
+  const lname = document.getElementById('os-lname')?.value.trim();
+  const email = document.getElementById('os-email')?.value.trim();
+  const password = document.getElementById('os-password')?.value;
+  const errEl = document.getElementById('auth-error');
+  errEl.style.display = 'none';
+  if (!fname || !lname) { errEl.textContent = 'Please enter your first and last name'; errEl.style.display = 'block'; return; }
+  if (!email || !email.includes('@')) { errEl.textContent = 'Please enter a valid email address'; errEl.style.display = 'block'; return; }
+  if (!password || password.length < 8) { errEl.textContent = 'Password must be at least 8 characters'; errEl.style.display = 'block'; return; }
+  document.getElementById('orgsignup-step1').style.display = 'none';
+  document.getElementById('orgsignup-step2').style.display = 'block';
+}
+
+async function completeOrgSignup() {
+  const fname = document.getElementById('os-fname')?.value.trim();
+  const lname = document.getElementById('os-lname')?.value.trim();
+  const email = document.getElementById('os-email')?.value.trim();
+  const password = document.getElementById('os-password')?.value;
+  const role = document.getElementById('os-role')?.value || 'admin';
+  const orgName = document.getElementById('os-orgname')?.value.trim();
+  const country = document.getElementById('os-country')?.value;
+  const industry = document.getElementById('os-industry')?.value;
+  const supplierCount = parseInt(document.getElementById('os-suppliers')?.value || '25');
+  const errEl = document.getElementById('auth-error');
+  errEl.style.display = 'none';
+  if (!orgName) { errEl.textContent = 'Please enter your organisation name'; errEl.style.display = 'block'; return; }
+
+  const btn = document.querySelector('#orgsignup-step2 .topbar-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Creating account…'; }
+
+  try {
+    // Determine plan based on supplier count
+    const plan = supplierCount <= 25 ? 'pilot' : supplierCount <= 50 ? 'starter' : supplierCount <= 200 ? 'professional' : 'enterprise';
+    const maxUsers = plan === 'pilot' ? 3 : plan === 'starter' ? 5 : plan === 'professional' ? 15 : 999;
+
+    // Create Supabase auth user
+    const { data, error } = await sb.auth.signUp({ email, password, options: { data: { full_name: `${fname} ${lname}` } } });
+    if (error) throw error;
+
+    // Create organisation
+    const slug = orgName.toLowerCase().replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-') + '-' + Date.now();
+    const { data: org, error: orgErr } = await sb.from('organisations').insert({
+      name: orgName, slug, plan, active: true,
+      max_suppliers: supplierCount, max_users: maxUsers,
+    }).select().single();
+    if (orgErr) throw orgErr;
+
+    // Create user profile
+    await sb.from('users').insert({
+      id: data.user.id, org_id: org.id,
+      full_name: `${fname} ${lname}`,
+      email, role: 'admin', active: true,
+    });
+
+    // Show confirmation
+    document.getElementById('auth-form-area').innerHTML = `
+      <div class="auth-card" style="text-align:center">
+        <div style="width:60px;height:60px;background:#EBF5FF;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid #BFDBFE">
+          <i class="fa-solid fa-circle-check" style="font-size:26px;color:#1A56DB"></i>
+        </div>
+        <div style="font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:8px">Account created</div>
+        <div style="font-size:13px;color:var(--c-text2);margin-bottom:20px">
+          Welcome to Guardian TPRM, ${fname}. Your organisation <strong>${orgName}</strong> has been created on the <strong>${plan}</strong> plan.
+          ${plan !== 'pilot' ? '<br><br>To activate your full licence, visit the Billing page after signing in.' : '<br><br>Your pilot account is ready — sign in to get started.'}
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" onclick="renderAuthForm('login')">
+          <i class="fa-solid fa-right-to-bracket"></i> Sign in now
+        </button>
+      </div>`;
+  } catch(e) {
+    errEl.textContent = e.message || 'Signup failed — please try again';
+    errEl.style.display = 'block';
+    if (btn) { btn.disabled = false; btn.textContent = 'Create account'; }
+  }
 }
 
 async function doLogin() {
