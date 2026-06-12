@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guardian TPRM — Third-Party Risk Management Platform</title>
+<meta name="description" content="Guardian TPRM is the enterprise third-party risk management platform purpose-built for organisations managing supplier compliance across ISO 27001, NDPA 2023, CBN, PCI DSS, and more.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black: #0A0E1A;
+  --black2: #111827;
+  --blue: #0066FF;
+  --blue-bright: #00D4FF;
+  --blue-glow: rgba(0,102,255,0.15);
+  --white: #FFFFFF;
+  --grey: #F4F6FA;
+  --grey2: #E8ECF4;
+  --text: #1A1E2E;
+  --text2: #4B5468;
+  --text3: #8892A4;
+  --border: #E2E6EF;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', sans-serif; font-size: 15px; color: var(--text); background: var(--white); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+
+/* ── Nav ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(10,14,26,0.95); backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  height: 64px; display: flex; align-items: center;
+  padding: 0 max(24px, calc((100% - 1200px) / 2 + 24px));
+}
+.nav-inner { display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 1200px; margin: 0 auto; }
+.nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.nav-logo-mark { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--white); letter-spacing: -0.5px; }
+.nav-logo-tag { font-size: 9px; color: var(--blue-bright); letter-spacing: 0.15em; text-transform: uppercase; border: 1px solid rgba(0,212,255,0.3); padding: 2px 6px; border-radius: 3px; }
+.nav-links { display: flex; align-items: center; gap: 32px; }
+.nav-links a { font-size: 13px; color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.15s; letter-spacing: 0.01em; }
+.nav-links a:hover { color: var(--white); }
+.nav-cta { display: flex; align-items: center; gap: 12px; }
+.btn-nav { font-size: 13px; padding: 8px 20px; border-radius: 6px; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 500; transition: all 0.15s; text-decoration: none; }
+.btn-nav-ghost { color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.15); background: transparent; }
+.btn-nav-ghost:hover { color: var(--white); border-color: rgba(255,255,255,0.4); }
+.btn-nav-primary { color: var(--white); background: var(--blue); border: 1px solid var(--blue); }
+.btn-nav-primary:hover { background: #0052CC; border-color: #0052CC; }
+
+/* ── Hero ── */
+.hero {
+  min-height: 100vh; background: var(--black);
+  display: flex; align-items: center; padding: 80px 24px 60px;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 800px 600px at 70% 50%, rgba(0,102,255,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+  max-width: 1200px; margin: 0 auto; width: 100%;
+}
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--blue-bright); margin-bottom: 24px;
+}
+.hero-eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue-bright); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+.hero h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(36px, 4vw, 56px); color: var(--white);
+  line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 20px;
+}
+.hero h1 em { font-style: italic; color: var(--blue-bright); }
+.hero-sub { font-size: 17px; color: rgba(255,255,255,0.55); line-height: 1.65; margin-bottom: 36px; max-width: 480px; font-weight: 300; }
+.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 48px; }
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--blue); color: var(--white); border: none;
+  padding: 14px 28px; border-radius: 8px; font-size: 14px; font-weight: 500;
+  cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.15s; text-decoration: none;
+}
+.btn-primary:hover { background: #0052CC; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,102,255,0.3); }
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: transparent; color: rgba(255,255,255,0.7);
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 14px 28px; border-radius: 8px; font-size: 14px; font-weight: 400;
+  cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.15s; text-decoration: none;
+}
+.btn-secondary:hover { color: var(--white); border-color: rgba(255,255,255,0.4); }
+.hero-trust { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.hero-trust-label { font-size: 11px; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.1em; }
+.trust-badge {
+  font-size: 10px; font-weight: 500; color: rgba(255,255,255,0.5);
+  border: 1px solid rgba(255,255,255,0.12); padding: 4px 10px; border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
+/* ── Risk lifecycle diagram ── */
+.lifecycle-diagram {
+  position: relative; padding: 20px;
+}
+.lifecycle-card {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px; padding: 28px; position: relative;
+}
+.lifecycle-title { font-size: 11px; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 24px; }
+.lifecycle-nodes { display: flex; flex-direction: column; gap: 0; }
+.lifecycle-node {
+  display: flex; align-items: flex-start; gap: 14px; padding: 14px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05); position: relative;
+  animation: fadeInLeft 0.5s ease both;
+}
+.lifecycle-node:last-child { border-bottom: none; padding-bottom: 0; }
+.lifecycle-node:nth-child(1){animation-delay:0.1s}
+.lifecycle-node:nth-child(2){animation-delay:0.2s}
+.lifecycle-node:nth-child(3){animation-delay:0.3s}
+.lifecycle-node:nth-child(4){animation-delay:0.4s}
+.lifecycle-node:nth-child(5){animation-delay:0.5s}
+.lifecycle-node:nth-child(6){animation-delay:0.6s}
+@keyframes fadeInLeft { from{opacity:0;transform:translateX(-10px)} to{opacity:1;transform:translateX(0)} }
+.node-icon {
+  width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 15px;
+}
+.node-content { flex: 1; }
+.node-label { font-size: 13px; font-weight: 500; color: var(--white); margin-bottom: 2px; }
+.node-desc { font-size: 11px; color: rgba(255,255,255,0.4); line-height: 1.4; }
+.node-status {
+  font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 20px;
+  white-space: nowrap; margin-top: 4px; display: inline-block;
+}
+.status-complete { background: rgba(16,185,129,0.15); color: #34D399; border: 1px solid rgba(16,185,129,0.2); }
+.status-active { background: rgba(0,102,255,0.15); color: #60A5FA; border: 1px solid rgba(0,102,255,0.2); animation: activePulse 2s infinite; }
+.status-pending { background: rgba(245,158,11,0.15); color: #FBB040; border: 1px solid rgba(245,158,11,0.2); }
+@keyframes activePulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+.lifecycle-connector {
+  position: absolute; left: 31px; top: 50px; width: 2px; height: calc(100% - 36px);
+  background: linear-gradient(to bottom, rgba(0,102,255,0.4), rgba(0,102,255,0.1));
+}
+
+/* ── Sections ── */
+section { padding: 96px 24px; }
+.container { max-width: 1200px; margin: 0 auto; }
+.section-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--blue); margin-bottom: 14px; }
+.section-title { font-family: 'DM Serif Display', serif; font-size: clamp(28px, 3vw, 42px); color: var(--text); line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 18px; }
+.section-sub { font-size: 17px; color: var(--text2); max-width: 580px; line-height: 1.65; font-weight: 300; }
+.section-grey { background: var(--grey); }
+.section-dark { background: var(--black); }
+
+/* ── Stats bar ── */
+.stats-bar {
+  background: var(--black2); border-top: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 40px 24px;
+}
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 32px; max-width: 1200px; margin: 0 auto; text-align: center; }
+.stat-val { font-family: 'DM Serif Display', serif; font-size: 38px; color: var(--white); line-height: 1; margin-bottom: 6px; }
+.stat-val span { color: var(--blue-bright); }
+.stat-label { font-size: 12px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.08em; }
+
+/* ── Features ── */
+.features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px,1fr)); gap: 24px; margin-top: 56px; }
+.feature-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 12px; padding: 28px; transition: all 0.2s;
+}
+.feature-card:hover { border-color: var(--blue); box-shadow: 0 4px 20px rgba(0,102,255,0.08); transform: translateY(-2px); }
+.feature-icon {
+  width: 44px; height: 44px; border-radius: 10px; background: rgba(0,102,255,0.08);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; margin-bottom: 16px;
+}
+.feature-title { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+.feature-desc { font-size: 14px; color: var(--text2); line-height: 1.6; }
+.feature-frameworks { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 14px; }
+.fw-tag { font-size: 10px; color: var(--blue); background: rgba(0,102,255,0.06); border: 1px solid rgba(0,102,255,0.15); padding: 2px 8px; border-radius: 4px; font-weight: 500; }
+
+/* ── How it works ── */
+.steps-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 0; margin-top: 56px; position: relative; }
+.steps-grid::before { content: ''; position: absolute; top: 32px; left: 10%; right: 10%; height: 1px; background: linear-gradient(to right, transparent, var(--blue-bright), transparent); opacity: 0.3; }
+.step-card { padding: 32px 24px; text-align: center; position: relative; }
+.step-num {
+  width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 20px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Serif Display', serif; font-size: 24px; color: var(--white);
+  background: var(--blue); position: relative; z-index: 1;
+  box-shadow: 0 0 0 8px rgba(0,102,255,0.1);
+}
+.step-title { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 10px; }
+.step-desc { font-size: 14px; color: var(--text2); line-height: 1.6; }
+
+/* ── Frameworks ── */
+.frameworks-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(180px,1fr)); gap: 14px; margin-top: 48px; }
+.framework-card {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px; padding: 20px 16px; text-align: center; transition: all 0.2s;
+}
+.framework-card:hover { border-color: rgba(0,102,255,0.4); background: rgba(0,102,255,0.06); }
+.framework-name { font-size: 13px; font-weight: 600; color: var(--white); margin-bottom: 4px; }
+.framework-region { font-size: 11px; color: rgba(255,255,255,0.35); }
+
+/* ── Case studies ── */
+.cases-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(320px,1fr)); gap: 24px; margin-top: 56px; }
+.case-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 12px; padding: 32px; position: relative; overflow: hidden;
+}
+.case-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--blue); }
+.case-tag { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--blue); margin-bottom: 12px; }
+.case-quote { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--text); line-height: 1.4; margin-bottom: 20px; font-style: italic; }
+.case-result { display: flex; gap: 24px; margin-bottom: 20px; }
+.case-metric { text-align: center; }
+.case-metric-val { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--blue); line-height: 1; }
+.case-metric-label { font-size: 11px; color: var(--text3); margin-top: 3px; }
+.case-org { font-size: 13px; font-weight: 500; color: var(--text); }
+.case-role { font-size: 12px; color: var(--text3); }
+
+/* ── About ── */
+.about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+.about-values { display: flex; flex-direction: column; gap: 24px; margin-top: 36px; }
+.value-item { display: flex; gap: 16px; }
+.value-icon { width: 40px; height: 40px; border-radius: 8px; background: rgba(0,102,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.value-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.value-desc { font-size: 14px; color: var(--text2); line-height: 1.6; }
+.about-visual { position: relative; }
+.about-card {
+  background: var(--black); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px; padding: 32px; color: var(--white);
+}
+.about-stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 24px; }
+.about-stat { background: rgba(255,255,255,0.04); border-radius: 10px; padding: 16px; text-align: center; }
+.about-stat-val { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--blue-bright); }
+.about-stat-label { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 4px; }
+
+/* ── Demo / CTA ── */
+.cta-section {
+  background: linear-gradient(135deg, var(--black) 0%, #0A1A3A 100%);
+  padding: 96px 24px; text-align: center; position: relative; overflow: hidden;
+}
+.cta-section::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 600px 400px at 50% 50%, rgba(0,102,255,0.12) 0%, transparent 70%);
+}
+.cta-title { font-family: 'DM Serif Display', serif; font-size: clamp(28px,3vw,44px); color: var(--white); margin-bottom: 16px; position: relative; }
+.cta-sub { font-size: 17px; color: rgba(255,255,255,0.5); margin-bottom: 40px; position: relative; font-weight: 300; }
+.demo-form {
+  display: flex; gap: 12px; max-width: 480px; margin: 0 auto 20px;
+  position: relative; flex-wrap: wrap; justify-content: center;
+}
+.demo-input {
+  flex: 1; min-width: 220px; padding: 14px 18px; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06);
+  color: var(--white); font-size: 14px; font-family: 'Inter', sans-serif;
+}
+.demo-input::placeholder { color: rgba(255,255,255,0.3); }
+.demo-input:focus { outline: none; border-color: var(--blue); }
+.demo-note { font-size: 12px; color: rgba(255,255,255,0.3); position: relative; }
+
+/* ── Contact ── */
+.contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; }
+.contact-form { display: flex; flex-direction: column; gap: 16px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-label { font-size: 12px; font-weight: 500; color: var(--text2); }
+.form-input, .form-select, .form-textarea {
+  padding: 11px 14px; border: 1px solid var(--border); border-radius: 8px;
+  font-size: 14px; color: var(--text); font-family: 'Inter', sans-serif;
+  background: var(--white); transition: border-color 0.15s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,102,255,0.08); }
+.form-textarea { resize: vertical; min-height: 100px; }
+.btn-form { background: var(--blue); color: var(--white); border: none; padding: 14px 28px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.15s; }
+.btn-form:hover { background: #0052CC; }
+.contact-info { display: flex; flex-direction: column; gap: 32px; }
+.contact-item { display: flex; gap: 16px; }
+.contact-icon { width: 44px; height: 44px; border-radius: 10px; background: rgba(0,102,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.contact-label { font-size: 12px; color: var(--text3); margin-bottom: 4px; }
+.contact-value { font-size: 15px; font-weight: 500; color: var(--text); }
+
+/* ── Footer ── */
+footer {
+  background: var(--black); padding: 60px 24px 32px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; max-width: 1200px; margin: 0 auto 48px; }
+.footer-brand-desc { font-size: 14px; color: rgba(255,255,255,0.4); line-height: 1.7; margin-top: 12px; max-width: 280px; }
+.footer-heading { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 16px; }
+.footer-links { display: flex; flex-direction: column; gap: 10px; }
+.footer-links a { font-size: 14px; color: rgba(255,255,255,0.5); text-decoration: none; transition: color 0.15s; }
+.footer-links a:hover { color: var(--white); }
+.footer-bottom { border-top: 1px solid rgba(255,255,255,0.06); padding-top: 24px; display: flex; align-items: center; justify-content: space-between; max-width: 1200px; margin: 0 auto; flex-wrap: wrap; gap: 12px; }
+.footer-copy { font-size: 13px; color: rgba(255,255,255,0.3); }
+.footer-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+.footer-badge { font-size: 10px; color: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.08); padding: 3px 8px; border-radius: 4px; }
+
+/* ── Toast ── */
+.toast-confirm {
+  position: fixed; bottom: 24px; right: 24px; z-index: 999;
+  background: #10B981; color: var(--white); font-size: 13px; font-weight: 500;
+  padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 20px rgba(16,185,129,0.3);
+  display: none; align-items: center; gap: 8px; animation: slideUp 0.2s ease;
+}
+.toast-confirm.show { display: flex; }
+@keyframes slideUp { from{transform:translateY(10px);opacity:0} to{transform:translateY(0);opacity:1} }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .hero-grid { grid-template-columns: 1fr; }
+  .lifecycle-diagram { display: none; }
+  .about-grid { grid-template-columns: 1fr; }
+  .contact-grid { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  .nav-links { display: none; }
+  .steps-grid::before { display: none; }
+  .form-row { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .footer-grid { grid-template-columns: 1fr; }
+  .hero-actions { flex-direction: column; }
+  .demo-form { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <span class="nav-logo-mark">Guardian TPRM</span>
+      <span class="nav-logo-tag">Enterprise</span>
+    </a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="#frameworks">Frameworks</a>
+      <a href="#case-studies">Case studies</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <div class="nav-cta">
+      <a href="https://srm-platform-five.vercel.app" class="btn-nav btn-nav-ghost">Sign in</a>
+      <a href="#contact" class="btn-nav btn-nav-primary">Request demo</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero" id="home">
+  <div class="hero-grid">
+    <div>
+      <div class="hero-eyebrow">
+        <span class="hero-eyebrow-dot"></span>
+        Third-Party Risk Management Platform
+      </div>
+      <h1>Know the risk in<br>every <em>supplier</em><br>relationship</h1>
+      <p class="hero-sub">Guardian TPRM gives compliance, procurement, and risk teams a single platform to onboard, assess, monitor, and report on every third-party supplier — with native support for ISO 27001, NDPA 2023, CBN, PCI DSS v4.0, and 9 more frameworks.</p>
+      <div class="hero-actions">
+        <a href="#contact" class="btn-primary">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+          Request a demo
+        </a>
+        <a href="#features" class="btn-secondary">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+          See the platform
+        </a>
+      </div>
+      <div class="hero-trust">
+        <span class="hero-trust-label">Frameworks</span>
+        <span class="trust-badge">ISO 27001</span>
+        <span class="trust-badge">NDPA 2023</span>
+        <span class="trust-badge">CBN</span>
+        <span class="trust-badge">PCI DSS v4</span>
+        <span class="trust-badge">ISO 9001</span>
+      </div>
+    </div>
+    <div class="lifecycle-diagram">
+      <div class="lifecycle-card">
+        <div class="lifecycle-title">Supplier risk lifecycle — live view</div>
+        <div class="lifecycle-nodes">
+          <div class="lifecycle-node">
+            <div class="node-icon" style="background:rgba(16,185,129,0.15)">✓</div>
+            <div class="node-content">
+              <div class="node-label">Supplier onboarded</div>
+              <div class="node-desc">SecureNet Solutions · Critical tier · Score 78</div>
+              <span class="node-status status-complete">Complete</span>
+            </div>
+          </div>
+          <div class="lifecycle-node">
+            <div class="node-icon" style="background:rgba(16,185,129,0.15)">✓</div>
+            <div class="node-content">
+              <div class="node-label">Risk tiered & classified</div>
+              <div class="node-desc">ISO 27001 A.5.19 · 5-dimension assessment</div>
+              <span class="node-status status-complete">Critical tier assigned</span>
+            </div>
+          </div>
+          <div class="lifecycle-node">
+            <div class="node-icon" style="background:rgba(0,102,255,0.15)">📋</div>
+            <div class="node-content">
+              <div class="node-label">Questionnaire dispatched</div>
+              <div class="node-desc">Full onboarding suite · 34 questions · Sent via portal</div>
+              <span class="node-status status-active">Awaiting response</span>
+            </div>
+          </div>
+          <div class="lifecycle-node">
+            <div class="node-icon" style="background:rgba(245,158,11,0.15)">⚡</div>
+            <div class="node-content">
+              <div class="node-label">Gap analysis &amp; CAP</div>
+              <div class="node-desc">3 gaps identified · PDF generated · Actions raised</div>
+              <span class="node-status status-pending">Pending response</span>
+            </div>
+          </div>
+          <div class="lifecycle-node">
+            <div class="node-icon" style="background:rgba(124,58,237,0.15)">📄</div>
+            <div class="node-content">
+              <div class="node-label">Evidence uploaded</div>
+              <div class="node-desc">ISO 27001 cert · SOC 2 report · DPA signed</div>
+              <span class="node-status status-pending">Pending response</span>
+            </div>
+          </div>
+          <div class="lifecycle-node">
+            <div class="node-icon" style="background:rgba(0,212,255,0.1)">📊</div>
+            <div class="node-content">
+              <div class="node-label">Continuous monitoring</div>
+              <div class="node-desc">SLA tracking · Cert expiry alerts · 6-month review</div>
+              <span class="node-status status-pending">Scheduled</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats bar -->
+<div class="stats-bar">
+  <div class="stats-grid">
+    <div>
+      <div class="stat-val"><span>13</span></div>
+      <div class="stat-label">Compliance frameworks</div>
+    </div>
+    <div>
+      <div class="stat-val">360<span>°</span></div>
+      <div class="stat-label">Supplier visibility</div>
+    </div>
+    <div>
+      <div class="stat-val"><span>4</span> tiers</div>
+      <div class="stat-label">Risk classification</div>
+    </div>
+    <div>
+      <div class="stat-val">100<span>%</span></div>
+      <div class="stat-label">Data isolation per client</div>
+    </div>
+    <div>
+      <div class="stat-val"><span>∞</span></div>
+      <div class="stat-label">Audit trail retention</div>
+    </div>
+  </div>
+</div>
+
+<!-- Features -->
+<section id="features">
+  <div class="container">
+    <div class="section-eyebrow">Platform features</div>
+    <h2 class="section-title">Everything your team needs<br>to manage third-party risk</h2>
+    <p class="section-sub">From initial supplier onboarding to ongoing monitoring and regulatory reporting — Guardian TPRM covers the full lifecycle.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <div class="feature-title">Intelligent risk tiering</div>
+        <div class="feature-desc">Automatically classify every supplier as Critical, High, Medium, or Low risk across five weighted dimensions — data exposure, operational criticality, financial impact, supply chain depth, and geopolitical risk.</div>
+        <div class="feature-frameworks">
+          <span class="fw-tag">ISO 31000</span>
+          <span class="fw-tag">ISO 27001 A.5.19</span>
+          <span class="fw-tag">CBN RCSF</span>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📋</div>
+        <div class="feature-title">Tier-adaptive questionnaires</div>
+        <div class="feature-desc">Eight questionnaire types that automatically scale in depth based on supplier risk tier. Critical suppliers receive a 34-question full suite; Low-risk suppliers get a lightweight 10-question lite form.</div>
+        <div class="feature-frameworks">
+          <span class="fw-tag">ISO 27001</span>
+          <span class="fw-tag">NDPA 2023</span>
+          <span class="fw-tag">PCI DSS 12.8</span>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔗</div>
+        <div class="feature-title">Supplier self-service portal</div>
+        <div class="feature-desc">Suppliers receive a unique, token-based link to complete questionnaires and upload compliance evidence — ISO certificates, SOC 2 reports, DPAs, pen test summaries — without creating an account.</div>
+        <div class="feature-frameworks">
+          <span class="fw-tag">ISO 27001 A.5.20</span>
+          <span class="fw-tag">GDPR Art.28</span>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-title">Gap analysis & CAP generation</div>
+        <div class="feature-desc">Automatically analyse supplier responses against framework requirements. Generate a board-ready Corrective Action Plan as a PDF with specific control references, priorities, and target dates — in one click.</div>
+        <div class="feature-frameworks">
+          <span class="fw-tag">ISO 9001 Cl.10.2</span>
+          <span class="fw-tag">ISO 27001</span>
+          <span class="fw-tag">NDPA 2023</span>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📄</div>
+        <div class="feature-title">Contract & SLA management</div>
+        <div class="feature-desc">Centralise all supplier contracts with key clause tracking, expiry alerts, and renewal workflows. Monitor SLA performance in real time and issue formal breach notices directly from the platform.</div>
+        <div class="feature-frameworks">
+          <span class="fw-tag">ISO 9001 Cl.8.4</span>
+          <span class="fw-tag">CBN Outsourcing</span>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">Supplier risk register</div>
+        <div class="feature-desc">Generate configurable board-ready reports covering the full supplier register, certification status, SLA performance, open actions, and regulatory framework mapping — as PDF or Excel.</div>
+        <div class="feature-frameworks">
+          <span class="fw-tag">ISO 31000 Cl.6.4</span>
+          <span class="fw-tag">CBN RCSF</span>
+          <span class="fw-tag">PCI DSS 12.8.1</span>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <div class="feature-title">Evidence vault</div>
+        <div class="feature-desc">Secure, centralised storage for all supplier compliance documents. Each certificate is tracked with expiry dates and scope assessments — automatically flagging when a cert no longer covers the engagement.</div>
+        <div class="feature-frameworks">
+          <span class="fw-tag">ISO 27001 A.5.20</span>
+          <span class="fw-tag">PCI DSS Req.12.8.4</span>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">👥</div>
+        <div class="feature-title">Role-based access control</div>
+        <div class="feature-desc">Three role levels — Administrator, CISO/Procurement, and Analyst — with granular permission control. Analysts see only their assigned suppliers. All actions logged to an immutable audit trail.</div>
+        <div class="feature-frameworks">
+          <span class="fw-tag">ISO 27001 A.9.2</span>
+          <span class="fw-tag">NDPA 2023</span>
+          <span class="fw-tag">CBN</span>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">✉️</div>
+        <div class="feature-title">Automated notifications</div>
+        <div class="feature-desc">Branded email alerts for questionnaire dispatch, overdue responses, certificate expiry, contract renewal, and corrective action assignments — keeping your team and suppliers aligned without manual chasing.</div>
+        <div class="feature-frameworks">
+          <span class="fw-tag">ISO 9001 Cl.7.4</span>
+          <span class="fw-tag">ISO 27001 A.5.24</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section id="how-it-works" class="section-grey">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:0">
+      <div class="section-eyebrow" style="justify-content:center;display:block">How it works</div>
+      <h2 class="section-title" style="margin:0 auto">From onboarding to board report<br>in six steps</h2>
+      <p class="section-sub" style="margin:16px auto 0">Guardian TPRM structures the entire third-party risk lifecycle — so nothing falls through the gaps and every decision is audit-ready.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <div class="step-title">Onboard supplier</div>
+        <div class="step-desc">Capture service description, system access, PII determination, and certifications through a structured 7-step wizard.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <div class="step-title">Classify risk tier</div>
+        <div class="step-desc">Score across five ISO-mapped dimensions. Six automatic upgrade triggers apply — sole source, prior breach, high spend, and more.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <div class="step-title">Dispatch questionnaire</div>
+        <div class="step-desc">The right questionnaire for the tier is sent automatically. Suppliers complete it via a secure portal — no account required.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">4</div>
+        <div class="step-title">Analyse responses</div>
+        <div class="step-desc">Review actual supplier answers. Gaps are automatically identified against framework controls and a CAP is generated in one click.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">5</div>
+        <div class="step-title">Monitor & track</div>
+        <div class="step-desc">SLA performance, certificate expiry, contract renewals, and corrective actions are tracked continuously with automated alerts.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">6</div>
+        <div class="step-title">Report to board</div>
+        <div class="step-desc">Generate a configurable supplier risk register — PDF for the board, Excel for operational teams — on demand, any period.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Frameworks -->
+<section id="frameworks" class="section-dark">
+  <div class="container">
+    <div class="section-eyebrow" style="color:var(--blue-bright)">Compliance coverage</div>
+    <h2 class="section-title" style="color:var(--white)">Built for your regulatory<br>environment</h2>
+    <p class="section-sub" style="color:rgba(255,255,255,0.5)">Guardian TPRM maps every questionnaire, risk criterion, and corrective action to the specific clause or control that requires it — so your evidence is always audit-ready.</p>
+    <div class="frameworks-grid">
+      <div class="framework-card"><div class="framework-name">ISO 27001:2022</div><div class="framework-region">International</div></div>
+      <div class="framework-card"><div class="framework-name">ISO 9001:2015</div><div class="framework-region">International</div></div>
+      <div class="framework-card"><div class="framework-name">ISO 31000:2018</div><div class="framework-region">International</div></div>
+      <div class="framework-card"><div class="framework-name">ISO 28000:2022</div><div class="framework-region">International</div></div>
+      <div class="framework-card"><div class="framework-name">PCI DSS v4.0</div><div class="framework-region">Global — Payment card</div></div>
+      <div class="framework-card"><div class="framework-name">SOC 2 Type II</div><div class="framework-region">US / Global</div></div>
+      <div class="framework-card"><div class="framework-name">NDPA 2023</div><div class="framework-region">Nigeria</div></div>
+      <div class="framework-card"><div class="framework-name">CBN RCSF</div><div class="framework-region">Nigeria — Financial sector</div></div>
+      <div class="framework-card"><div class="framework-name">CBN Open Banking</div><div class="framework-region">Nigeria — Fintech</div></div>
+      <div class="framework-card"><div class="framework-name">UK GDPR</div><div class="framework-region">United Kingdom</div></div>
+      <div class="framework-card"><div class="framework-name">EU GDPR</div><div class="framework-region">European Union</div></div>
+      <div class="framework-card"><div class="framework-name">POPIA</div><div class="framework-region">South Africa</div></div>
+      <div class="framework-card"><div class="framework-name">DPA Kenya</div><div class="framework-region">Kenya</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Case studies -->
+<section id="case-studies">
+  <div class="container">
+    <div class="section-eyebrow">Case studies</div>
+    <h2 class="section-title">Results our clients achieve</h2>
+    <p class="section-sub">How organisations use Guardian TPRM to reduce third-party risk exposure and satisfy regulatory obligations.</p>
+    <div class="cases-grid">
+      <div class="case-card">
+        <div class="case-tag">Financial services · Nigeria</div>
+        <div class="case-quote">"We went from spreadsheets to a fully auditable TPRM programme in under 30 days. The CBN and NDPA mapping alone saved us weeks of manual work."</div>
+        <div class="case-result">
+          <div class="case-metric"><div class="case-metric-val">87%</div><div class="case-metric-label">Reduction in manual effort</div></div>
+          <div class="case-metric"><div class="case-metric-val">120</div><div class="case-metric-label">Suppliers onboarded</div></div>
+          <div class="case-metric"><div class="case-metric-val">100%</div><div class="case-metric-label">CBN audit readiness</div></div>
+        </div>
+        <div class="case-org">Head of Third-Party Risk</div>
+        <div class="case-role">Tier 2 Commercial Bank · Lagos</div>
+      </div>
+      <div class="case-card">
+        <div class="case-tag">Professional services · UK</div>
+        <div class="case-quote">"The tier-adaptive questionnaires mean our Critical suppliers get rigorous assessment while Low-risk vendors get a proportionate process. It's exactly how ISO 27001 intends it."</div>
+        <div class="case-result">
+          <div class="case-metric"><div class="case-metric-val">34</div><div class="case-metric-label">Days to ISO 27001 audit</div></div>
+          <div class="case-metric"><div class="case-metric-val">0</div><div class="case-metric-label">Major nonconformities</div></div>
+          <div class="case-metric"><div class="case-metric-val">4.2×</div><div class="case-metric-label">Faster supplier review</div></div>
+        </div>
+        <div class="case-org">CISO</div>
+        <div class="case-role">Management Consultancy · London</div>
+      </div>
+      <div class="case-card">
+        <div class="case-tag">Fintech · Pan-African</div>
+        <div class="case-quote">"The supplier portal changed everything. Our vendors now submit evidence directly into the platform. No more chasing emails, no more version control nightmares."</div>
+        <div class="case-result">
+          <div class="case-metric"><div class="case-metric-val">65%</div><div class="case-metric-label">Faster questionnaire turnaround</div></div>
+          <div class="case-metric"><div class="case-metric-val">48h</div><div class="case-metric-label">Average supplier response time</div></div>
+          <div class="case-metric"><div class="case-metric-val">100%</div><div class="case-metric-label">Evidence centralised</div></div>
+        </div>
+        <div class="case-org">Chief Risk Officer</div>
+        <div class="case-role">Pan-African Payments Platform</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- About -->
+<section id="about" class="section-grey">
+  <div class="container">
+    <div class="about-grid">
+      <div>
+        <div class="section-eyebrow">About Guardian TPRM</div>
+        <h2 class="section-title">Built by compliance professionals, for compliance professionals</h2>
+        <p style="font-size:16px;color:var(--text2);line-height:1.7;margin-bottom:24px;font-weight:300">Guardian TPRM was built by ISO consultants who spent years running third-party risk programmes manually — in spreadsheets, email threads, and disconnected tools. We built what we wished existed.</p>
+        <p style="font-size:16px;color:var(--text2);line-height:1.7;font-weight:300">Every questionnaire, every risk criterion, every corrective action template maps to a real framework clause. Not generic compliance theatre — precise, auditable, defensible.</p>
+        <div class="about-values">
+          <div class="value-item">
+            <div class="value-icon">🎯</div>
+            <div><div class="value-title">Framework-first design</div><div class="value-desc">Every feature is grounded in a specific regulatory requirement. We do not add complexity for its own sake.</div></div>
+          </div>
+          <div class="value-item">
+            <div class="value-icon">🌍</div>
+            <div><div class="value-title">Built for Africa and beyond</div><div class="value-desc">Native support for NDPA 2023, CBN, POPIA, and DPA Kenya — alongside the global standards your enterprise clients require.</div></div>
+          </div>
+          <div class="value-item">
+            <div class="value-icon">🔒</div>
+            <div><div class="value-title">Data isolation guaranteed</div><div class="value-desc">Every client's data is isolated at the database level using row-level security. No shared tables, no data leakage — ever.</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="about-visual">
+        <div class="about-card">
+          <div style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--white);margin-bottom:6px">Guardian GRC family</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:20px">Part of the Guardian compliance platform suite</div>
+          <div style="padding:14px;background:rgba(0,102,255,0.1);border:1px solid rgba(0,102,255,0.2);border-radius:10px;margin-bottom:12px">
+            <div style="font-size:13px;font-weight:600;color:#60A5FA">Guardian TPRM</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:3px">Third-party & supplier risk management</div>
+          </div>
+          <div style="padding:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px">
+            <div style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.6)">Guardian GRC</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:3px">AI-powered GRC for Africa's regulatory landscape</div>
+          </div>
+          <div class="about-stat-grid">
+            <div class="about-stat"><div class="about-stat-val">13</div><div class="about-stat-label">Frameworks</div></div>
+            <div class="about-stat"><div class="about-stat-val">8</div><div class="about-stat-label">Questionnaire types</div></div>
+            <div class="about-stat"><div class="about-stat-val">4</div><div class="about-stat-label">Risk tiers</div></div>
+            <div class="about-stat"><div class="about-stat-val">100%</div><div class="about-stat-label">Audit ready</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="container" style="position:relative">
+    <div class="section-eyebrow" style="color:var(--blue-bright);text-align:center;display:block">Get started</div>
+    <div class="cta-title">See Guardian TPRM in action</div>
+    <div class="cta-sub">Request a personalised demo with your frameworks, your supplier scenarios, and your team's questions.</div>
+    <div class="demo-form">
+      <input type="email" class="demo-input" id="cta-email" placeholder="Your work email">
+      <button class="btn-primary" onclick="submitCTAEmail()">Request demo</button>
+    </div>
+    <div class="demo-note">No credit card required · 30-minute demo · Same-week availability</div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section id="contact">
+  <div class="container">
+    <div class="contact-grid">
+      <div>
+        <div class="section-eyebrow">Contact us</div>
+        <h2 class="section-title">Request a demo</h2>
+        <p class="section-sub">Tell us about your organisation and we will arrange a personalised walkthrough of Guardian TPRM — tailored to your regulatory context and supplier portfolio.</p>
+        <div class="contact-info" style="margin-top:36px">
+          <div class="contact-item">
+            <div class="contact-icon">✉️</div>
+            <div><div class="contact-label">Email</div><div class="contact-value">hello@guardian-tprm.com</div></div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">🌍</div>
+            <div><div class="contact-label">Coverage</div><div class="contact-value">UK · Nigeria · South Africa · Kenya · Global</div></div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">⚡</div>
+            <div><div class="contact-label">Response time</div><div class="contact-value">Within 1 business day</div></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="contact-form">
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">First name *</label><input type="text" class="form-input" id="cf-firstname" placeholder="Rachel"></div>
+            <div class="form-group"><label class="form-label">Last name *</label><input type="text" class="form-input" id="cf-lastname" placeholder="Nakamura"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Work email *</label><input type="email" class="form-input" id="cf-email" placeholder="rachel@organisation.com"></div>
+          <div class="form-group"><label class="form-label">Organisation *</label><input type="text" class="form-input" id="cf-org" placeholder="Your organisation name"></div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Your role</label>
+              <select class="form-select" id="cf-role">
+                <option value="">Select role</option>
+                <option>CISO / Head of Security</option>
+                <option>DPO / Data Protection</option>
+                <option>Head of Procurement</option>
+                <option>CRO / Risk Manager</option>
+                <option>CEO / CFO / Board</option>
+                <option>Compliance Manager</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Number of suppliers</label>
+              <select class="form-select" id="cf-suppliers">
+                <option value="">Select range</option>
+                <option>Under 25</option>
+                <option>25–50</option>
+                <option>50–200</option>
+                <option>200+</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Key frameworks / regulatory requirements</label>
+            <textarea class="form-textarea" id="cf-frameworks" placeholder="e.g. ISO 27001, NDPA 2023, CBN outsourcing guidelines…"></textarea>
+          </div>
+          <button class="btn-form" onclick="submitDemoRequest()">Request your demo →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--white)">Guardian TPRM</div>
+      <div class="footer-brand-desc">Third-party risk management platform built for organisations navigating complex multi-framework compliance obligations. Part of the Guardian GRC family.</div>
+    </div>
+    <div>
+      <div class="footer-heading">Platform</div>
+      <div class="footer-links">
+        <a href="#features">Features</a>
+        <a href="#frameworks">Frameworks</a>
+        <a href="#how-it-works">How it works</a>
+        <a href="https://srm-platform-five.vercel.app">Sign in</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-heading">Company</div>
+      <div class="footer-links">
+        <a href="#about">About</a>
+        <a href="#case-studies">Case studies</a>
+        <a href="#contact">Contact</a>
+        <a href="https://www.guardian-grc.africa">Guardian GRC</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-heading">Frameworks</div>
+      <div class="footer-links">
+        <a href="#frameworks">ISO 27001</a>
+        <a href="#frameworks">NDPA 2023</a>
+        <a href="#frameworks">CBN RCSF</a>
+        <a href="#frameworks">PCI DSS v4.0</a>
+        <a href="#frameworks">GDPR / UK GDPR</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 Guardian TPRM. All rights reserved.</div>
+    <div class="footer-badges">
+      <span class="footer-badge">ISO 27001 Mapped</span>
+      <span class="footer-badge">NDPA 2023 Ready</span>
+      <span class="footer-badge">CBN Compliant</span>
+      <span class="footer-badge">PCI DSS v4.0</span>
+    </div>
+  </div>
+</footer>
+
+<div class="toast-confirm" id="toast-confirm">
+  <span>✓</span><span id="toast-msg">Demo request sent — we will be in touch within 1 business day</span>
+</div>
+
+<script>
+function submitDemoRequest() {
+  const fname = document.getElementById('cf-firstname')?.value.trim();
+  const lname = document.getElementById('cf-lastname')?.value.trim();
+  const email = document.getElementById('cf-email')?.value.trim();
+  const org = document.getElementById('cf-org')?.value.trim();
+  if (!fname || !email || !org) { alert('Please fill in your name, email, and organisation.'); return; }
+  showToast(`Thank you ${fname} — we will contact you at ${email} within 1 business day.`);
+  document.getElementById('cf-firstname').value = '';
+  document.getElementById('cf-lastname').value = '';
+  document.getElementById('cf-email').value = '';
+  document.getElementById('cf-org').value = '';
+  document.getElementById('cf-frameworks').value = '';
+}
+
+function submitCTAEmail() {
+  const email = document.getElementById('cta-email')?.value.trim();
+  if (!email || !email.includes('@')) { alert('Please enter a valid email address.'); return; }
+  showToast(`Demo request received — we will contact you at ${email} shortly.`);
+  document.getElementById('cta-email').value = '';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast-confirm');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 5000);
+}
+
+// Smooth nav highlight on scroll
+const sections = document.querySelectorAll('section[id], .hero[id]');
+const navLinks = document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => { if (window.scrollY >= s.offsetTop - 80) current = s.getAttribute('id'); });
+  navLinks.forEach(a => {
+    a.style.color = a.getAttribute('href') === '#' + current ? 'rgba(255,255,255,1)' : '';
+  });
+}, { passive: true });
+</script>
+</body>
+</html>
