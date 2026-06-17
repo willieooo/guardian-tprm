@@ -1,1000 +1,1406 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Guardian TPRM — Third-Party Risk Management</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231A56DB'/><text x='5' y='23' font-family='Georgia,serif' font-size='20' font-weight='bold' fill='white'>G</text></svg>">
-<script>
-  // Inject Supabase publishable key from environment at build time
-  // In production this is replaced by Vercel — do not hardcode secrets here
-  window.__SRM_CONFIG = {
-    supabaseUrl: 'https://czlqjrfmtpmiicfzuzys.supabase.co',
-    supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6bHFqcmZtdHBtaWljZnp1enlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NTU2ODMsImV4cCI6MjA5NjUzMTY4M30.ZuqNYAOqeOyIQq1vMRtaailvz-6vbNIxUc_BaEmtytU'
-  };
-</script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<style>
-:root {
-  --c-bg: #F0F2F7;
-  --c-surface: #FFFFFF;
-  --c-surface2: #F4F6FA;
-  --c-border: #E2E6EF;
-  --c-border2: #C8CED9;
-  --c-text: #0F1523;
-  --c-text2: #4A5568;
-  --c-text3: #8A94A6;
-  --c-critical: #C41E3A;
-  --c-critical-bg: #FFF0F2;
-  --c-critical-border: #FFCCD4;
-  --c-high: #B45309;
-  --c-high-bg: #FFFBEB;
-  --c-high-border: #FDE68A;
-  --c-medium: #1A56DB;
-  --c-medium-bg: #EBF5FF;
-  --c-medium-border: #BFDBFE;
-  --c-low: #057A55;
-  --c-low-bg: #ECFDF5;
-  --c-low-border: #A7F3D0;
-  --c-accent: #1A56DB;
-  --c-accent-hover: #1143B0;
-  --c-success: #057A55;
-  --c-warn: #B45309;
-  --c-danger: #C41E3A;
-  --r-sm: 6px;
-  --r-md: 10px;
-  --r-lg: 14px;
-  --r-xl: 20px;
-  --shadow-sm: 0 1px 4px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
-  --shadow-md: 0 4px 16px rgba(0,0,0,.10), 0 2px 4px rgba(0,0,0,.05);
-}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guardian TPRM — Third-Party Risk Management Platform</title>
+  <meta name="description" content="Guardian TPRM is the compliance platform that turns third-party supplier risk into a documented, auditable, board-ready process. ISO 27001, NDPA 2023, CBN, GDPR, POPIA and 9 more frameworks. Free pilot. Same-day deployment.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy:   #0F1523;
+      --navy2:  #1A2744;
+      --blue:   #1A56DB;
+      --blue2:  #0E3DA8;
+      --lblue:  #EBF5FF;
+      --gold:   #F59E0B;
+      --offwhite: #F0F2F7;
+      --white:  #FFFFFF;
+      --gray:   #64748B;
+      --lgray:  #E2E8F0;
+      --success: #15803D;
+      --text:   #1A1816;
+    }
 
-body {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 14px;
-  background: var(--c-bg);
-  color: var(--c-text);
-  min-height: 100vh;
-  line-height: 1.55;
-}
+    html { scroll-behavior: smooth; }
 
-/* ── Sidebar ── */
-.sidebar {
-  position: fixed; left: 0; top: 0; bottom: 0;
-  width: 230px; background: #0F1523;
-  display: flex; flex-direction: column;
-  z-index: 100; overflow: hidden;
-  box-shadow: 2px 0 12px rgba(0,0,0,.15);
-}
-.sidebar-logo {
-  padding: 22px 20px 18px;
-  border-bottom: 1px solid rgba(255,255,255,.07);
-}
-.sidebar-logo .logo-mark {
-  font-family: 'DM Serif Display', serif;
-  font-size: 19px; color: #fff; letter-spacing: -.3px;
-  display: block; line-height: 1.2;
-}
-.sidebar-logo .logo-sub {
-  font-size: 9px; color: rgba(255,255,255,.35);
-  letter-spacing: .14em; text-transform: uppercase;
-  margin-top: 5px; display: block;
-}
-.sidebar-section-label {
-  font-size: 9px; letter-spacing: .14em; text-transform: uppercase;
-  color: rgba(255,255,255,.22); padding: 18px 20px 6px; font-weight: 600;
-}
-.nav-item {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 20px; cursor: pointer; transition: all .15s;
-  color: rgba(255,255,255,.5); font-size: 13px; font-weight: 400;
-  border-left: 3px solid transparent; text-decoration: none;
-  margin: 1px 0;
-}
-.nav-item i { font-size: 14px; width: 17px; text-align: center; opacity: .8; }
-.nav-item:hover { color: rgba(255,255,255,.9); background: rgba(255,255,255,.06); border-left-color: rgba(255,255,255,.1); }
-.nav-item.active { color: #fff; border-left-color: #3B82F6; background: rgba(59,130,246,.18); font-weight: 500; }
-.nav-item.active i { opacity: 1; color: #60A5FA; }
-.sidebar-bottom {
-  margin-top: auto; padding: 16px 20px;
-  border-top: 1px solid rgba(255,255,255,.07);
-}
-.sidebar-user { display: flex; align-items: center; gap: 10px; }
-.sidebar-user .avatar {
-  width: 32px; height: 32px; border-radius: 50%;
-  background: rgba(59,130,246,.3); color: #93C5FD;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px; font-weight: 600; flex-shrink: 0;
-}
-.sidebar-user .user-name { font-size: 13px; color: rgba(255,255,255,.75); font-weight: 500; }
-.sidebar-user .user-role { font-size: 10px; color: rgba(255,255,255,.3); }
+    body {
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      color: var(--text);
+      background: var(--white);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
 
-/* ── Main ── */
-.main { margin-left: 230px; min-height: 100vh; display: flex; flex-direction: column; }
-.topbar {
-  background: var(--c-surface); border-bottom: 1px solid var(--c-border);
-  padding: 0 28px; height: 60px;
-  display: flex; align-items: center; justify-content: space-between;
-  position: sticky; top: 0; z-index: 50;
-  box-shadow: 0 1px 6px rgba(0,0,0,.06);
-}
-.topbar-title { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--c-text); }
-.topbar-right { display: flex; align-items: center; gap: 10px; }
-.topbar-btn {
-  display: flex; align-items: center; gap: 7px;
-  padding: 8px 16px; border-radius: var(--r-md);
-  font-size: 13px; font-weight: 500; cursor: pointer;
-  border: 1px solid var(--c-border); background: var(--c-surface); color: var(--c-text);
-  transition: all .15s; font-family: 'DM Sans', sans-serif;
-}
-.topbar-btn:hover { background: var(--c-surface2); border-color: var(--c-border2); }
-.topbar-btn.primary { background: var(--c-accent); color: #fff; border-color: var(--c-accent); box-shadow: 0 2px 8px rgba(26,86,219,.25); }
-.topbar-btn.primary:hover { background: var(--c-accent-hover); border-color: var(--c-accent-hover); }
-.topbar-btn i { font-size: 13px; }
+    /* ── UTILITY ── */
+    .serif { font-family: 'DM Serif Display', serif; }
+    .container { max-width: 1140px; margin: 0 auto; padding: 0 24px; }
+    .eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--blue); margin-bottom: 12px; }
+    .eyebrow-light { color: rgba(255,255,255,.5); }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 28px; border-radius: 8px; font-size: 15px;
+      font-weight: 600; text-decoration: none; border: none; cursor: pointer;
+      transition: all .18s; font-family: 'Inter', sans-serif;
+    }
+    .btn-primary { background: var(--blue); color: var(--white); }
+    .btn-primary:hover { background: var(--blue2); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(26,86,219,.3); }
+    .btn-ghost { background: transparent; color: var(--white); border: 1.5px solid rgba(255,255,255,.3); }
+    .btn-ghost:hover { border-color: var(--white); background: rgba(255,255,255,.08); }
+    .btn-dark { background: var(--navy); color: var(--white); }
+    .btn-dark:hover { background: var(--navy2); }
+    .section { padding: 96px 0; }
+    .section-alt { background: var(--offwhite); }
+    .section-dark { background: var(--navy); }
+    .tag {
+      display: inline-block; padding: 3px 10px; border-radius: 20px;
+      font-size: 11px; font-weight: 600; background: var(--lblue); color: var(--blue);
+    }
 
-.content { padding: 28px; flex: 1; }
-.page { display: none; }
-.page.active { display: block; }
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 0 24px;
+      background: rgba(15,21,35,.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      transition: all .2s;
+    }
+    .nav-inner {
+      max-width: 1140px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo-mark {
+      font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--white);
+    }
+    .nav-logo-sub { font-size: 9px; color: rgba(255,255,255,.4); letter-spacing: .1em; text-transform: uppercase; }
+    .nav-links { display: flex; align-items: center; gap: 32px; }
+    .nav-links a { color: rgba(255,255,255,.7); text-decoration: none; font-size: 14px; font-weight: 500; transition: color .15s; }
+    .nav-links a:hover { color: var(--white); }
+    .nav-ctas { display: flex; gap: 10px; align-items: center; }
+    .nav-signin { color: rgba(255,255,255,.7); text-decoration: none; font-size: 14px; font-weight: 500; padding: 8px 16px; }
+    .nav-signin:hover { color: var(--white); }
+    .nav-pill { background: var(--blue); color: var(--white); text-decoration: none; font-size: 13px; font-weight: 600; padding: 8px 18px; border-radius: 6px; transition: all .15s; }
+    .nav-pill:hover { background: var(--blue2); }
+    .nav-mobile-toggle { display: none; background: none; border: none; cursor: pointer; color: var(--white); font-size: 20px; }
 
-/* ── Cards ── */
-.card {
-  background: var(--c-surface); border: 1px solid var(--c-border);
-  border-radius: var(--r-lg); padding: 22px 24px; margin-bottom: 16px;
-  box-shadow: var(--shadow-sm);
-}
-.card-title {
-  font-size: 14px; font-weight: 600; color: var(--c-text);
-  margin-bottom: 16px; display: flex; align-items: center; gap: 9px;
-}
-.card-title i { color: var(--c-accent); font-size: 15px; }
+    /* ── HERO ── */
+    .hero {
+      background: var(--navy);
+      padding: 160px 0 100px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 70% 60% at 60% 40%, rgba(26,86,219,.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center;
+    }
+    .hero-live {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(21,128,61,.15); border: 1px solid rgba(21,128,61,.3);
+      color: #4ade80; padding: 5px 14px; border-radius: 20px;
+      font-size: 12px; font-weight: 600; margin-bottom: 24px;
+    }
+    .hero-live-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: #4ade80;
+      animation: pulse-dot 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse-dot { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .4; transform: scale(.7); } }
 
-/* ── Metrics row ── */
-.metrics-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 14px; margin-bottom: 22px; }
-.metric-card {
-  background: var(--c-surface); border: 1px solid var(--c-border);
-  border-radius: var(--r-lg); padding: 18px 20px;
-  box-shadow: var(--shadow-sm); border-top: 3px solid var(--c-border);
-  transition: box-shadow .2s;
-}
-.metric-card:hover { box-shadow: var(--shadow-md); }
-.metric-card .lbl { font-size: 11px; font-weight: 600; color: var(--c-text3); margin-bottom: 8px; text-transform: uppercase; letter-spacing: .04em; }
-.metric-card .val { font-size: 30px; font-weight: 300; color: var(--c-text); font-family: 'DM Serif Display', serif; line-height: 1; }
-.metric-card .sub { font-size: 11px; color: var(--c-text3); margin-top: 5px; }
-.metric-card.accent-critical { border-top-color: var(--c-critical); }
-.metric-card.accent-critical .val { color: var(--c-critical); }
-.metric-card.accent-high { border-top-color: var(--c-high); }
-.metric-card.accent-high .val { color: var(--c-high); }
-.metric-card.accent-medium { border-top-color: var(--c-medium); }
-.metric-card.accent-medium .val { color: var(--c-medium); }
-.metric-card.accent-success { border-top-color: var(--c-success); }
-.metric-card.accent-success .val { color: var(--c-success); }
-.metric-card.accent-warn { border-top-color: var(--c-warn); }
-.metric-card.accent-warn .val { color: var(--c-warn); }
-.metric-card.accent-blue { border-top-color: var(--c-accent); }
-.metric-card.accent-blue .val { color: var(--c-accent); }
+    .hero h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(36px, 4.5vw, 58px);
+      line-height: 1.1;
+      color: var(--white);
+      margin-bottom: 20px;
+    }
+    .hero h1 em { font-style: italic; color: var(--blue); }
+    .hero-sub {
+      font-size: 18px; color: rgba(255,255,255,.65); line-height: 1.7;
+      margin-bottom: 36px; max-width: 520px;
+    }
+    .hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 48px; }
+    .hero-trust {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 12px; color: rgba(255,255,255,.4);
+    }
+    .hero-trust-divider { width: 1px; height: 14px; background: rgba(255,255,255,.15); }
 
-/* ── Badges ── */
-.badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600;
-}
-.badge-critical { background: var(--c-critical-bg); color: var(--c-critical); border: 1px solid var(--c-critical-border); }
-.badge-high { background: var(--c-high-bg); color: var(--c-high); border: 1px solid var(--c-high-border); }
-.badge-medium { background: var(--c-medium-bg); color: var(--c-medium); border: 1px solid var(--c-medium-border); }
-.badge-low { background: var(--c-low-bg); color: var(--c-low); border: 1px solid var(--c-low-border); }
-.badge-neutral { background: var(--c-surface2); color: var(--c-text2); border: 1px solid var(--c-border); }
-.badge-success { background: #ECFDF5; color: #057A55; border: 1px solid #A7F3D0; }
-.badge-warn { background: #FFFBEB; color: #B45309; border: 1px solid #FDE68A; }
-.badge-danger { background: #FFF0F2; color: #C41E3A; border: 1px solid #FFCCD4; }
-.badge-info { background: #EBF5FF; color: #1A56DB; border: 1px solid #BFDBFE; }
+    /* ── LIFECYCLE DIAGRAM ── */
+    .lifecycle-wrap {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 16px; padding: 28px 24px;
+    }
+    .lifecycle-label {
+      font-size: 10px; font-weight: 600; letter-spacing: .1em;
+      text-transform: uppercase; color: rgba(255,255,255,.35);
+      margin-bottom: 20px;
+    }
+    .lifecycle-chain {
+      display: flex; align-items: center; gap: 0;
+      overflow-x: auto; padding-bottom: 4px;
+    }
+    .lc-step {
+      flex-shrink: 0;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      min-width: 80px;
+    }
+    .lc-node {
+      width: 44px; height: 44px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; position: relative;
+      transition: all .3s;
+    }
+    .lc-connector {
+      flex: 1; height: 2px; min-width: 20px;
+      background: linear-gradient(90deg, rgba(26,86,219,.5), rgba(26,86,219,.2));
+      position: relative; overflow: visible;
+    }
+    .lc-connector::after {
+      content: '';
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 8px; height: 8px;
+      background: var(--blue); border-radius: 50%;
+      animation: flow-dot 2.4s linear infinite;
+    }
+    .lc-connector:nth-child(2)::after { animation-delay: 0s; }
+    .lc-connector:nth-child(4)::after { animation-delay: .4s; }
+    .lc-connector:nth-child(6)::after { animation-delay: .8s; }
+    .lc-connector:nth-child(8)::after { animation-delay: 1.2s; }
+    .lc-connector:nth-child(10)::after { animation-delay: 1.6s; }
 
-/* ── Buttons ── */
-.btn {
-  display: inline-flex; align-items: center; gap: 7px;
-  padding: 8px 16px; border-radius: var(--r-md);
-  font-size: 13px; font-weight: 500; cursor: pointer;
-  border: 1px solid var(--c-border); background: var(--c-surface); color: var(--c-text);
-  transition: all .15s; font-family: 'DM Sans', sans-serif;
-  white-space: nowrap;
-}
-.btn:hover { background: var(--c-surface2); border-color: var(--c-border2); }
-.btn-primary { background: var(--c-accent); color: #fff; border-color: var(--c-accent); box-shadow: 0 2px 6px rgba(26,86,219,.2); }
-.btn-primary:hover { background: var(--c-accent-hover); border-color: var(--c-accent-hover); box-shadow: 0 3px 10px rgba(26,86,219,.3); }
-.btn-danger { background: var(--c-critical-bg); color: var(--c-critical); border-color: var(--c-critical-border); }
-.btn-danger:hover { background: #FFE0E5; }
-.btn-sm { padding: 6px 12px; font-size: 12px; }
-.btn-xs { padding: 4px 9px; font-size: 11px; border-radius: var(--r-sm); }
-.btn i { font-size: 13px; }
+    @keyframes flow-dot {
+      0% { left: 0; opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { left: 100%; opacity: 0; }
+    }
 
-/* ── Table ── */
-.table-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; }
-th {
-  text-align: left; padding: 11px 14px; font-size: 11px; font-weight: 600;
-  color: var(--c-text3); letter-spacing: .05em; text-transform: uppercase;
-  border-bottom: 2px solid var(--c-border); background: var(--c-surface2);
-}
-th:first-child { border-radius: var(--r-sm) 0 0 0; }
-th:last-child { border-radius: 0 var(--r-sm) 0 0; }
-td {
-  padding: 13px 14px; border-bottom: 1px solid var(--c-border);
-  font-size: 13px; color: var(--c-text); vertical-align: middle;
-}
-tr:last-child td { border-bottom: none; }
-tr:hover td { background: #F5F7FF; }
-tr { cursor: pointer; transition: background .1s; }
+    .lc-step-label { font-size: 10px; color: rgba(255,255,255,.55); font-weight: 500; text-align: center; }
+    .lc-step-clause { font-size: 9px; color: rgba(255,255,255,.25); text-align: center; }
 
-/* ── Forms ── */
-.form-group { margin-bottom: 16px; }
-.form-label { font-size: 12px; font-weight: 600; color: var(--c-text2); margin-bottom: 6px; display: block; }
-.form-input, .form-select, .form-textarea {
-  width: 100%; padding: 10px 13px; font-size: 13px;
-  border: 1px solid var(--c-border); border-radius: var(--r-md);
-  background: var(--c-surface); color: var(--c-text);
-  font-family: 'DM Sans', sans-serif; transition: border-color .15s;
-}
-.form-input:focus, .form-select:focus, .form-textarea:focus {
-  outline: none; border-color: var(--c-accent);
-  box-shadow: 0 0 0 3px rgba(26,86,219,.1);
-}
-.form-textarea { resize: vertical; min-height: 80px; }
-.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.form-grid .full { grid-column: 1 / -1; }
+    /* Mini stat cards below diagram */
+    .hero-stats {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px;
+    }
+    .hero-stat {
+      background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08);
+      border-radius: 10px; padding: 14px 16px; text-align: center;
+    }
+    .hero-stat-val {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px; color: var(--gold); font-weight: 400;
+    }
+    .hero-stat-lbl { font-size: 10px; color: rgba(255,255,255,.4); margin-top: 2px; }
 
-/* ── Tabs ── */
-.tab-bar {
-  display: flex; gap: 2px; border-bottom: 2px solid var(--c-border);
-  margin-bottom: 20px;
-}
-.tab-btn {
-  padding: 10px 18px; font-size: 13px; font-weight: 400; cursor: pointer;
-  border: none; background: none; color: var(--c-text2); font-family: 'DM Sans', sans-serif;
-  border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all .15s;
-  display: flex; align-items: center; gap: 7px;
-}
-.tab-btn:hover { color: var(--c-text); background: var(--c-surface2); border-radius: var(--r-sm) var(--r-sm) 0 0; }
-.tab-btn.active { color: var(--c-accent); border-bottom-color: var(--c-accent); font-weight: 600; }
-.tab-btn .count {
-  font-size: 11px; background: var(--c-surface2); color: var(--c-text3);
-  border-radius: 20px; padding: 1px 7px; font-weight: 600;
-}
-.tab-btn.active .count { background: #EBF5FF; color: var(--c-accent); }
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
+    /* ── TRUST BAR ── */
+    .trust-bar {
+      background: var(--navy2);
+      border-top: 1px solid rgba(255,255,255,.06);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      padding: 18px 0;
+    }
+    .trust-inner {
+      display: flex; align-items: center; gap: 0;
+      max-width: 1140px; margin: 0 auto; padding: 0 24px;
+      justify-content: space-between; flex-wrap: wrap;
+    }
+    .trust-item {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; color: rgba(255,255,255,.55); font-weight: 500;
+      padding: 6px 16px;
+    }
+    .trust-item i { color: var(--blue); font-size: 14px; }
 
-/* ── Risk tier colors ── */
-.tier-strip-critical { border-left: 3px solid var(--c-critical); }
-.tier-strip-high { border-left: 3px solid var(--c-high); }
-.tier-strip-medium { border-left: 3px solid var(--c-medium); }
-.tier-strip-low { border-left: 3px solid var(--c-low); }
+    /* ── PROBLEM SECTION ── */
+    .problem-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;
+      margin-top: 48px;
+    }
+    .problem-card {
+      background: var(--white); border: 1px solid var(--lgray);
+      border-radius: 12px; padding: 28px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.04);
+      transition: all .2s;
+    }
+    .problem-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,.08); transform: translateY(-2px); }
+    .problem-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; margin-bottom: 14px;
+      background: #FEF2F2; color: #B91C1C;
+    }
+    .problem-card h3 { font-size: 16px; font-weight: 600; color: var(--navy); margin-bottom: 8px; }
+    .problem-card p { font-size: 14px; color: var(--gray); line-height: 1.6; }
 
-/* ── Score bar ── */
-.score-bar-wrap { height: 6px; background: var(--c-surface2); border-radius: 3px; overflow: hidden; }
-.score-bar { height: 6px; border-radius: 3px; transition: width .4s; }
+    /* ── FEATURES ── */
+    .features-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+      margin-top: 56px;
+    }
+    .feature-card {
+      border-radius: 12px; padding: 28px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.04);
+      transition: all .2s;
+    }
+    .feature-card:hover {
+      background: rgba(26,86,219,.08);
+      border-color: rgba(26,86,219,.3);
+      transform: translateY(-2px);
+    }
+    .feature-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      background: rgba(26,86,219,.15); color: #60a5fa;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; margin-bottom: 16px;
+    }
+    .feature-card h3 { font-size: 17px; font-weight: 600; color: var(--white); margin-bottom: 8px; }
+    .feature-card p { font-size: 14px; color: rgba(255,255,255,.55); line-height: 1.65; }
+    .feature-clause { font-size: 11px; color: rgba(26,86,219,.8); font-weight: 500; margin-top: 12px; }
 
-/* ── Progress bar ── */
-.progress-wrap { height: 5px; background: var(--c-border); border-radius: 3px; overflow: hidden; margin-bottom: 18px; }
-.progress-bar { height: 5px; background: var(--c-accent); border-radius: 3px; transition: width .3s; }
+    /* ── HOW IT WORKS ── */
+    .how-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
+      align-items: center; margin-top: 64px;
+    }
+    .how-steps { display: flex; flex-direction: column; gap: 0; }
+    .how-step {
+      display: flex; gap: 20px; padding: 24px 0;
+      border-bottom: 1px solid var(--lgray);
+      cursor: pointer; transition: all .15s;
+    }
+    .how-step:last-child { border-bottom: none; }
+    .how-step:hover .how-num { background: var(--blue); color: var(--white); }
+    .how-num {
+      width: 36px; height: 36px; flex-shrink: 0;
+      border-radius: 50%; background: var(--lgray); color: var(--navy);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; transition: all .15s;
+    }
+    .how-step h3 { font-size: 16px; font-weight: 600; color: var(--navy); margin-bottom: 4px; }
+    .how-step p { font-size: 13px; color: var(--gray); line-height: 1.6; }
 
-/* ── Avatar ── */
-.avatar {
-  border-radius: 50%; display: flex; align-items: center;
-  justify-content: center; font-weight: 600; flex-shrink: 0;
-}
+    /* Mock dashboard visual */
+    .mock-dashboard {
+      background: var(--navy);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 24px 80px rgba(0,0,0,.22);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    .mock-topbar {
+      background: rgba(0,0,0,.3);
+      padding: 10px 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .mock-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .mock-url {
+      flex: 1; background: rgba(255,255,255,.06); border-radius: 4px;
+      padding: 4px 10px; font-size: 11px; color: rgba(255,255,255,.3);
+      text-align: center;
+    }
+    .mock-body { padding: 20px; }
+    .mock-metrics {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 8px;
+      margin-bottom: 16px;
+    }
+    .mock-metric {
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07);
+      border-radius: 8px; padding: 12px 10px; text-align: center;
+    }
+    .mock-metric-val { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--white); }
+    .mock-metric-lbl { font-size: 9px; color: rgba(255,255,255,.35); margin-top: 2px; }
+    .mock-metric-val.crit { color: #f87171; }
+    .mock-metric-val.warn { color: #fbbf24; }
+    .mock-metric-val.ok { color: #4ade80; }
+    .mock-rows { display: flex; flex-direction: column; gap: 6px; }
+    .mock-row {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(255,255,255,.03); border-radius: 6px;
+      padding: 8px 10px;
+    }
+    .mock-badge {
+      font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 10px;
+    }
+    .mock-badge.crit { background: rgba(185,28,28,.2); color: #f87171; }
+    .mock-badge.high { background: rgba(180,83,9,.2); color: #fbbf24; }
+    .mock-badge.med  { background: rgba(26,86,219,.2); color: #60a5fa; }
+    .mock-badge.low  { background: rgba(21,128,61,.2); color: #4ade80; }
+    .mock-row-name { font-size: 11px; color: rgba(255,255,255,.7); flex: 1; }
+    .mock-score { font-size: 11px; font-weight: 600; }
+    .mock-score.r { color: #f87171; }
+    .mock-score.a { color: #fbbf24; }
+    .mock-score.g { color: #4ade80; }
 
-/* ── Modal ── */
-.modal-overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,.4); z-index: 200;
-  align-items: flex-start; justify-content: center;
-  padding-top: 60px; backdrop-filter: blur(2px);
-}
-.modal-overlay.open { display: flex; }
-.modal {
-  background: var(--c-surface); border-radius: var(--r-xl);
-  border: 1px solid var(--c-border); box-shadow: var(--shadow-md);
-  width: min(640px, 95vw); max-height: 82vh;
-  overflow-y: auto; display: flex; flex-direction: column;
-}
-.modal-header {
-  padding: 22px 26px 18px; border-bottom: 1px solid var(--c-border);
-  display: flex; align-items: center; justify-content: space-between;
-  position: sticky; top: 0; background: var(--c-surface); z-index: 1;
-}
-.modal-title { font-family: 'DM Serif Display', serif; font-size: 20px; }
-.modal-close { width: 30px; height: 30px; border-radius: var(--r-sm); border: 1px solid var(--c-border); background: var(--c-surface2); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--c-text2); font-size: 15px; }
-.modal-close:hover { background: var(--c-border); color: var(--c-text); }
-.modal-body { padding: 22px 26px; flex: 1; }
-.modal-footer { padding: 16px 26px; border-top: 1px solid var(--c-border); display: flex; gap: 8px; justify-content: flex-end; }
+    /* ── FRAMEWORKS ── */
+    .frameworks-grid {
+      display: grid; grid-template-columns: repeat(4,1fr); gap: 12px;
+      margin-top: 48px;
+    }
+    .fw-card {
+      background: var(--navy2); border: 1px solid rgba(255,255,255,.07);
+      border-radius: 10px; padding: 16px 18px;
+      transition: all .2s;
+    }
+    .fw-card:hover { border-color: var(--blue); background: rgba(26,86,219,.1); }
+    .fw-name { font-size: 13px; font-weight: 600; color: var(--white); margin-bottom: 4px; }
+    .fw-region { font-size: 11px; color: rgba(255,255,255,.35); }
+    .fw-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      display: inline-block; margin-right: 6px;
+    }
 
-/* ── Notification bar ── */
-.notif {
-  display: flex; align-items: center; gap: 12px;
-  padding: 13px 18px; border-radius: var(--r-md); margin-bottom: 16px;
-  font-size: 13px; border: 1px solid;
-}
-.notif-warn { background: var(--c-high-bg); color: var(--c-high); border-color: var(--c-high-border); }
-.notif-danger { background: var(--c-critical-bg); color: var(--c-critical); border-color: var(--c-critical-border); }
-.notif-info { background: var(--c-medium-bg); color: var(--c-medium); border-color: var(--c-medium-border); }
-.notif-success { background: var(--c-low-bg); color: var(--c-low); border-color: var(--c-low-border); }
-.notif i { font-size: 15px; flex-shrink: 0; }
-.notif .notif-text { flex: 1; }
-.notif .notif-action { font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: underline; white-space: nowrap; }
+    /* ── TESTIMONIALS ── */
+    .testimonials-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+      margin-top: 56px;
+    }
+    .testimonial-card {
+      background: var(--white); border: 1px solid var(--lgray);
+      border-radius: 12px; padding: 28px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.04);
+    }
+    .testimonial-stars { color: var(--gold); font-size: 14px; margin-bottom: 14px; }
+    .testimonial-quote {
+      font-family: 'DM Serif Display', serif;
+      font-size: 17px; color: var(--navy); line-height: 1.5;
+      margin-bottom: 20px; font-style: italic;
+    }
+    .testimonial-author { display: flex; align-items: center; gap: 12px; }
+    .testimonial-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--lblue); color: var(--blue);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; flex-shrink: 0;
+    }
+    .testimonial-name { font-size: 14px; font-weight: 600; color: var(--navy); }
+    .testimonial-role { font-size: 12px; color: var(--gray); }
 
-/* ── KV rows ── */
-.kv-row { display: flex; align-items: flex-start; padding: 9px 0; border-bottom: 1px solid var(--c-border); gap: 12px; }
-.kv-row:last-child { border-bottom: none; }
-.kv-key { font-size: 12px; color: var(--c-text3); min-width: 150px; flex-shrink: 0; padding-top: 1px; font-weight: 500; }
-.kv-val { font-size: 13px; color: var(--c-text); flex: 1; }
+    /* ── PRICING ── */
+    .pricing-grid {
+      display: grid; grid-template-columns: repeat(4,1fr); gap: 20px;
+      margin-top: 56px; align-items: start;
+    }
+    .price-card {
+      border-radius: 14px; padding: 28px 24px;
+      border: 1px solid var(--lgray);
+      background: var(--white);
+      transition: all .2s;
+      position: relative;
+    }
+    .price-card:hover { box-shadow: 0 12px 40px rgba(0,0,0,.1); transform: translateY(-3px); }
+    .price-card.featured {
+      border-color: var(--blue);
+      background: var(--navy);
+      color: var(--white);
+    }
+    .price-popular {
+      position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+      background: var(--gold); color: var(--navy); font-size: 11px;
+      font-weight: 700; padding: 3px 14px; border-radius: 20px; white-space: nowrap;
+    }
+    .price-plan { font-size: 13px; font-weight: 600; color: var(--gray); margin-bottom: 8px; }
+    .price-card.featured .price-plan { color: rgba(255,255,255,.5); }
+    .price-amount { font-family: 'DM Serif Display', serif; font-size: 40px; color: var(--navy); }
+    .price-card.featured .price-amount { color: var(--white); }
+    .price-period { font-size: 13px; color: var(--gray); margin-left: 4px; }
+    .price-card.featured .price-period { color: rgba(255,255,255,.4); }
+    .price-limits { font-size: 12px; color: var(--gray); margin: 12px 0 20px; }
+    .price-card.featured .price-limits { color: rgba(255,255,255,.5); }
+    .price-features { list-style: none; display: flex; flex-direction: column; gap: 9px; margin-bottom: 24px; }
+    .price-features li { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: var(--text); }
+    .price-card.featured .price-features li { color: rgba(255,255,255,.7); }
+    .price-features li i { color: var(--success); font-size: 12px; margin-top: 3px; flex-shrink: 0; }
+    .price-card.featured .price-features li i { color: #4ade80; }
+    .price-btn {
+      display: block; text-align: center; padding: 12px;
+      border-radius: 8px; font-size: 14px; font-weight: 600;
+      text-decoration: none; transition: all .15s;
+      background: var(--offwhite); color: var(--navy);
+    }
+    .price-btn:hover { background: var(--lgray); }
+    .price-card.featured .price-btn { background: var(--blue); color: var(--white); }
+    .price-card.featured .price-btn:hover { background: var(--blue2); }
+    .pricing-note {
+      text-align: center; margin-top: 24px; font-size: 13px; color: var(--gray);
+    }
 
-/* ── Section separator ── */
-.section-sep {
-  font-size: 11px; font-weight: 600; color: var(--c-text3);
-  text-transform: uppercase; letter-spacing: .08em;
-  padding: 16px 0 7px; border-bottom: 1px solid var(--c-border);
-  margin-bottom: 6px;
-}
+    /* ── FAQ ── */
+    .faq-list { max-width: 720px; margin: 48px auto 0; }
+    .faq-item {
+      border-bottom: 1px solid var(--lgray); overflow: hidden;
+    }
+    .faq-q {
+      width: 100%; background: none; border: none; cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 20px 0; text-align: left;
+      font-size: 16px; font-weight: 600; color: var(--navy);
+      font-family: 'Inter', sans-serif;
+      transition: color .15s;
+    }
+    .faq-q:hover { color: var(--blue); }
+    .faq-q i { color: var(--blue); font-size: 14px; transition: transform .2s; flex-shrink: 0; }
+    .faq-q.open i { transform: rotate(180deg); }
+    .faq-a {
+      font-size: 15px; color: var(--gray); line-height: 1.7;
+      max-height: 0; overflow: hidden; transition: max-height .3s ease, padding .3s ease;
+      padding-bottom: 0;
+    }
+    .faq-a.open { max-height: 300px; padding-bottom: 20px; }
 
-/* ── Timeline ── */
-.timeline { display: flex; flex-direction: column; }
-.tl-item { display: flex; gap: 14px; padding-bottom: 18px; }
-.tl-item:last-child { padding-bottom: 0; }
-.tl-left { display: flex; flex-direction: column; align-items: center; width: 20px; flex-shrink: 0; }
-.tl-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
-.tl-line { flex: 1; width: 1px; background: var(--c-border); margin-top: 5px; }
-.tl-item:last-child .tl-line { display: none; }
-.tl-title { font-size: 13px; font-weight: 600; color: var(--c-text); }
-.tl-meta { font-size: 12px; color: var(--c-text2); margin-top: 2px; }
-.tl-date { font-size: 11px; color: var(--c-text3); margin-top: 3px; }
+    /* ── DEMO FORM ── */
+    .demo-section {
+      background: var(--navy);
+      padding: 96px 0;
+    }
+    .demo-inner {
+      max-width: 800px; margin: 0 auto; text-align: center;
+    }
+    .demo-inner h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(28px, 3.5vw, 44px);
+      color: var(--white); margin-bottom: 16px; line-height: 1.15;
+    }
+    .demo-inner p { font-size: 17px; color: rgba(255,255,255,.6); margin-bottom: 40px; }
+    .demo-form {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+      text-align: left;
+    }
+    .demo-form input, .demo-form select {
+      width: 100%; padding: 13px 16px;
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.15);
+      border-radius: 8px; color: var(--white); font-size: 14px;
+      font-family: 'Inter', sans-serif; outline: none;
+      transition: border-color .15s;
+    }
+    .demo-form input::placeholder { color: rgba(255,255,255,.3); }
+    .demo-form input:focus, .demo-form select:focus { border-color: var(--blue); }
+    .demo-form select option { background: var(--navy); }
+    .demo-form .full { grid-column: 1/-1; }
+    .demo-submit {
+      grid-column: 1/-1; background: var(--blue); color: var(--white);
+      border: none; padding: 15px; border-radius: 8px;
+      font-size: 16px; font-weight: 600; cursor: pointer;
+      font-family: 'Inter', sans-serif; transition: all .15s;
+    }
+    .demo-submit:hover { background: var(--blue2); }
+    .demo-privacy { grid-column: 1/-1; text-align: center; font-size: 12px; color: rgba(255,255,255,.3); }
 
-/* ── Onboard steps ── */
-.step-flow { display: flex; align-items: center; margin-bottom: 28px; }
-.step { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; }
-.step-circle {
-  width: 36px; height: 36px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px; font-weight: 600; border: 2px solid;
-  transition: all .2s;
-}
-.step-circle.done { background: var(--c-low-bg); color: var(--c-success); border-color: var(--c-low-border); }
-.step-circle.active { background: #EBF5FF; color: var(--c-accent); border-color: var(--c-accent); box-shadow: 0 0 0 4px rgba(26,86,219,.1); }
-.step-circle.pending { background: var(--c-surface2); color: var(--c-text3); border-color: var(--c-border); }
-.step-label { font-size: 10px; color: var(--c-text3); text-align: center; line-height: 1.3; max-width: 70px; }
-.step-label.active-label { color: var(--c-accent); font-weight: 600; }
-.step-connector { height: 2px; flex: 1; background: var(--c-border); margin-bottom: 22px; }
+    /* ── CHAT WIDGET ── */
+    .chat-bubble {
+      position: fixed; bottom: 28px; right: 28px; z-index: 200;
+      width: 56px; height: 56px; border-radius: 50%;
+      background: var(--blue); color: var(--white);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; cursor: pointer;
+      box-shadow: 0 8px 24px rgba(26,86,219,.4);
+      transition: all .2s; border: none;
+    }
+    .chat-bubble:hover { transform: scale(1.08); box-shadow: 0 12px 32px rgba(26,86,219,.5); }
+    .chat-panel {
+      position: fixed; bottom: 96px; right: 28px; z-index: 200;
+      width: 320px; background: var(--white);
+      border-radius: 16px; box-shadow: 0 24px 80px rgba(0,0,0,.18);
+      overflow: hidden; display: none;
+    }
+    .chat-panel.open { display: block; animation: slideUp .2s ease; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .chat-header {
+      background: var(--navy); padding: 16px 20px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .chat-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--blue); color: var(--white);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700;
+    }
+    .chat-header-text h4 { font-size: 14px; font-weight: 600; color: var(--white); }
+    .chat-header-text p { font-size: 12px; color: rgba(255,255,255,.5); }
+    .chat-body { padding: 20px; }
+    .chat-message {
+      background: var(--offwhite); border-radius: 12px 12px 12px 4px;
+      padding: 12px 14px; font-size: 13px; color: var(--navy);
+      line-height: 1.5; margin-bottom: 12px;
+    }
+    .chat-options { display: flex; flex-direction: column; gap: 8px; }
+    .chat-option {
+      background: var(--white); border: 1px solid var(--lgray);
+      border-radius: 8px; padding: 10px 14px; font-size: 13px;
+      color: var(--blue); font-weight: 500; cursor: pointer;
+      text-align: left; transition: all .15s; font-family: 'Inter', sans-serif;
+    }
+    .chat-option:hover { background: var(--lblue); border-color: var(--blue); }
+    .chat-input-row {
+      display: flex; gap: 8px; padding: 12px 20px 16px;
+      border-top: 1px solid var(--lgray);
+    }
+    .chat-input {
+      flex: 1; border: 1px solid var(--lgray); border-radius: 8px;
+      padding: 9px 12px; font-size: 13px; font-family: 'Inter', sans-serif;
+      outline: none;
+    }
+    .chat-input:focus { border-color: var(--blue); }
+    .chat-send {
+      background: var(--blue); color: var(--white); border: none;
+      border-radius: 8px; padding: 9px 14px; cursor: pointer;
+      font-size: 14px;
+    }
 
-/* ── Questionnaire ── */
-.q-section { border: 1px solid var(--c-border); border-radius: var(--r-lg); overflow: hidden; margin-bottom: 12px; }
-.q-section-head {
-  padding: 13px 18px; background: var(--c-surface2);
-  display: flex; align-items: center; gap: 10px; cursor: pointer;
-  font-size: 13px; font-weight: 600; color: var(--c-text);
-  border-bottom: 1px solid var(--c-border); user-select: none;
-}
-.q-section-head .clause { font-size: 11px; color: var(--c-text3); font-weight: 400; margin-left: auto; }
-.q-section-body { padding: 14px 18px; }
-.q-item { padding: 12px 0; border-bottom: 1px solid var(--c-border); }
-.q-item:last-child { border-bottom: none; padding-bottom: 0; }
-.q-item-label {
-  font-size: 13px; font-weight: 600; color: var(--c-text); margin-bottom: 3px;
-  display: flex; align-items: flex-start; gap: 8px;
-}
-.q-item-clause { font-size: 11px; color: var(--c-text3); margin-bottom: 8px; }
-.q-required { color: var(--c-critical); font-size: 12px; flex-shrink: 0; }
-.q-risk-tag {
-  font-size: 10px; padding: 2px 6px; border-radius: 4px;
-  font-weight: 600; flex-shrink: 0; margin-top: 1px;
-}
-.qrt-critical { background: var(--c-critical-bg); color: var(--c-critical); }
-.qrt-high { background: var(--c-high-bg); color: var(--c-high); }
-.qrt-medium { background: var(--c-medium-bg); color: var(--c-medium); }
-.radio-group { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 7px; }
-.radio-opt {
-  font-size: 12px; padding: 6px 12px; border-radius: var(--r-md);
-  border: 1px solid var(--c-border); cursor: pointer; background: var(--c-surface);
-  color: var(--c-text2); transition: all .12s; white-space: nowrap;
-}
-.radio-opt:hover { border-color: var(--c-accent); color: var(--c-accent); background: #EBF5FF; }
-.radio-opt.selected { border-color: var(--c-accent); background: #EBF5FF; color: var(--c-accent); font-weight: 600; }
-.radio-opt.sel-critical { border-color: var(--c-critical-border); background: var(--c-critical-bg); color: var(--c-critical); font-weight: 600; }
-.radio-opt.sel-high { border-color: var(--c-high-border); background: var(--c-high-bg); color: var(--c-high); font-weight: 600; }
-.radio-opt.sel-low { border-color: var(--c-low-border); background: var(--c-low-bg); color: var(--c-low); font-weight: 600; }
-.check-group { display: flex; flex-direction: column; gap: 7px; margin-top: 7px; }
-.check-label { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; color: var(--c-text); }
-.check-label input { accent-color: var(--c-accent); width: 15px; height: 15px; flex-shrink: 0; }
+    /* ── FOOTER ── */
+    footer {
+      background: var(--navy);
+      border-top: 1px solid rgba(255,255,255,.06);
+      padding: 64px 0 32px;
+    }
+    .footer-grid {
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px;
+      margin-bottom: 48px;
+    }
+    .footer-brand p { font-size: 13px; color: rgba(255,255,255,.4); line-height: 1.7; margin: 16px 0 20px; max-width: 280px; }
+    .footer-frameworks {
+      display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .footer-fw-badge {
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+      color: rgba(255,255,255,.4); padding: 3px 8px; border-radius: 4px;
+      font-size: 9px; font-weight: 600;
+    }
+    .footer-col h4 { font-size: 13px; font-weight: 600; color: rgba(255,255,255,.6); margin-bottom: 16px; letter-spacing: .04em; }
+    .footer-col a { display: block; font-size: 13px; color: rgba(255,255,255,.4); text-decoration: none; margin-bottom: 10px; transition: color .15s; }
+    .footer-col a:hover { color: var(--white); }
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,.06);
+      padding-top: 24px; display: flex; justify-content: space-between;
+      align-items: center; flex-wrap: wrap; gap: 12px;
+      font-size: 12px; color: rgba(255,255,255,.3);
+    }
+    .footer-sister {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .footer-sister a { color: rgba(255,255,255,.4); text-decoration: none; }
+    .footer-sister a:hover { color: var(--white); }
 
-/* ── Risk classifier ── */
-.dim-row {
-  display: flex; align-items: flex-start; gap: 14px;
-  padding: 12px 0; border-bottom: 1px solid var(--c-border);
-}
-.dim-row:last-child { border-bottom: none; }
-.dim-label { flex: 1; }
-.dim-q { font-size: 13px; font-weight: 600; color: var(--c-text); margin-bottom: 2px; }
-.dim-clause { font-size: 11px; color: var(--c-text3); }
-.score-opts { display: flex; flex-wrap: wrap; gap: 6px; }
-.score-opt {
-  font-size: 12px; padding: 5px 11px; border-radius: var(--r-md);
-  border: 1px solid var(--c-border); cursor: pointer; background: var(--c-surface);
-  color: var(--c-text2); transition: all .12s; white-space: nowrap;
-}
-.score-opt:hover { border-color: var(--c-border2); background: var(--c-surface2); }
-.score-opt.sel-4 { background: var(--c-critical-bg); color: var(--c-critical); border-color: var(--c-critical-border); font-weight: 600; }
-.score-opt.sel-3 { background: var(--c-high-bg); color: var(--c-high); border-color: var(--c-high-border); font-weight: 600; }
-.score-opt.sel-2 { background: var(--c-medium-bg); color: var(--c-medium); border-color: var(--c-medium-border); font-weight: 600; }
-.score-opt.sel-1 { background: var(--c-low-bg); color: var(--c-low); border-color: var(--c-low-border); font-weight: 600; }
+    /* Section titles */
+    .section-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(28px, 3.5vw, 44px);
+      color: var(--navy); line-height: 1.15;
+    }
+    .section-title-light { color: var(--white); }
+    .section-sub {
+      font-size: 17px; color: var(--gray); margin-top: 12px;
+      max-width: 560px;
+    }
+    .section-sub-light { color: rgba(255,255,255,.55); }
 
-/* ── Tier result card ── */
-.tier-result {
-  border-radius: var(--r-lg); padding: 20px 22px; margin-top: 18px;
-  border: 1px solid;
-}
-.tier-result-critical { background: var(--c-critical-bg); border-color: var(--c-critical-border); }
-.tier-result-high { background: var(--c-high-bg); border-color: var(--c-high-border); }
-.tier-result-medium { background: var(--c-medium-bg); border-color: var(--c-medium-border); }
-.tier-result-low { background: var(--c-low-bg); border-color: var(--c-low-border); }
-.tier-result-title { font-family: 'DM Serif Display', serif; font-size: 22px; margin-bottom: 4px; }
-.tier-result-critical .tier-result-title { color: var(--c-critical); }
-.tier-result-high .tier-result-title { color: var(--c-high); }
-.tier-result-medium .tier-result-title { color: var(--c-medium); }
-.tier-result-low .tier-result-title { color: var(--c-low); }
-.tier-result-sub { font-size: 13px; margin-bottom: 14px; }
-.tier-result-critical .tier-result-sub { color: var(--c-critical); }
-.tier-result-high .tier-result-sub { color: var(--c-high); }
-.tier-result-medium .tier-result-sub { color: var(--c-medium); }
-.tier-result-low .tier-result-sub { color: var(--c-low); }
-.tier-req-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-.tier-req { background: rgba(255,255,255,.7); border-radius: var(--r-md); padding: 10px 12px; }
-.tier-req-label { font-size: 11px; font-weight: 600; margin-bottom: 2px; }
-.tier-result-critical .tier-req-label { color: var(--c-critical); }
-.tier-result-high .tier-req-label { color: var(--c-high); }
-.tier-result-medium .tier-req-label { color: var(--c-medium); }
-.tier-result-low .tier-req-label { color: var(--c-low); }
-.tier-req-val { font-size: 12px; color: var(--c-text2); }
+    /* ── STICKY CTA ── */
+    .sticky-cta {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 90;
+      background: var(--blue); padding: 14px 24px;
+      display: none; align-items: center; justify-content: center; gap: 20px;
+      box-shadow: 0 -4px 24px rgba(26,86,219,.3);
+    }
+    .sticky-cta.show { display: flex; }
+    .sticky-cta p { font-size: 14px; color: var(--white); font-weight: 500; }
+    .sticky-cta a {
+      background: var(--white); color: var(--blue);
+      padding: 8px 20px; border-radius: 6px;
+      font-size: 13px; font-weight: 700; text-decoration: none;
+      white-space: nowrap; transition: all .15s;
+    }
+    .sticky-cta a:hover { background: var(--lblue); }
+    .sticky-close {
+      background: none; border: none; color: rgba(255,255,255,.5);
+      cursor: pointer; font-size: 18px; padding: 4px;
+      position: absolute; right: 20px;
+    }
 
-/* ── SLA bar ── */
-.sla-row { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--c-border); }
-.sla-row:last-child { border-bottom: none; }
-.sla-name { flex: 1; font-size: 13px; font-weight: 600; color: var(--c-text); }
-.sla-sub { font-size: 11px; color: var(--c-text3); font-weight: 400; }
-.sla-target { font-size: 12px; color: var(--c-text3); width: 70px; text-align: center; }
-.sla-actual { font-size: 14px; font-weight: 600; width: 65px; text-align: center; }
-.sla-bar-col { width: 80px; }
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .hero-grid { grid-template-columns: 1fr; gap: 48px; }
+      .features-grid { grid-template-columns: repeat(2,1fr); }
+      .frameworks-grid { grid-template-columns: repeat(2,1fr); }
+      .pricing-grid { grid-template-columns: repeat(2,1fr); }
+      .testimonials-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .how-grid { grid-template-columns: 1fr; }
+      .mock-dashboard { display: none; }
+      .problem-grid { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+      .nav-mobile-toggle { display: block; }
+    }
+    @media (max-width: 600px) {
+      .features-grid { grid-template-columns: 1fr; }
+      .frameworks-grid { grid-template-columns: repeat(2,1fr); }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .demo-form { grid-template-columns: 1fr; }
+      .demo-form .full { grid-column: auto; }
+      .demo-submit { grid-column: auto; }
+      .demo-privacy { grid-column: auto; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .trust-inner { justify-content: center; }
+      .section { padding: 64px 0; }
+      .hero { padding: 120px 0 72px; }
+    }
 
-/* ── Owner card ── */
-.owner-card {
-  display: flex; align-items: center; gap: 14px;
-  padding: 14px 16px; background: var(--c-surface2);
-  border-radius: var(--r-md); margin-bottom: 12px;
-  border: 1px solid var(--c-border);
-}
-.owner-name { font-size: 14px; font-weight: 600; color: var(--c-text); }
-.owner-role { font-size: 12px; color: var(--c-text2); }
-.owner-contact { font-size: 12px; color: var(--c-accent); margin-top: 2px; }
-
-/* ── Contract pill ── */
-.clause-pill {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 5px 10px; border-radius: var(--r-md);
-  border: 1px solid var(--c-border); background: var(--c-surface2);
-  font-size: 12px; color: var(--c-text2); margin: 3px;
-}
-.clause-pill i { font-size: 12px; color: var(--c-success); }
-
-/* ── Action items ── */
-.action-item {
-  display: flex; align-items: flex-start; gap: 12px;
-  padding: 12px 0; border-bottom: 1px solid var(--c-border);
-}
-.action-item:last-child { border-bottom: none; }
-.action-icon {
-  width: 32px; height: 32px; border-radius: var(--r-md);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px; flex-shrink: 0;
-}
-.ai-critical { background: var(--c-critical-bg); color: var(--c-critical); }
-.ai-high { background: var(--c-high-bg); color: var(--c-high); }
-.ai-medium { background: var(--c-medium-bg); color: var(--c-medium); }
-.ai-low { background: var(--c-low-bg); color: var(--c-low); }
-.action-title { font-size: 13px; font-weight: 600; color: var(--c-text); margin-bottom: 3px; }
-.action-meta { font-size: 12px; color: var(--c-text2); }
-
-/* ── Audit log ── */
-.audit-item { display: flex; gap: 14px; padding: 11px 0; border-bottom: 1px solid var(--c-border); font-size: 13px; }
-.audit-item:last-child { border-bottom: none; }
-.audit-date { font-size: 12px; color: var(--c-text3); min-width: 80px; flex-shrink: 0; }
-.audit-msg { flex: 1; color: var(--c-text); }
-.audit-user { font-size: 12px; color: var(--c-text3); min-width: 80px; text-align: right; }
-
-/* ── Toast ── */
-#toast {
-  position: fixed; bottom: 24px; right: 24px; z-index: 999;
-  background: #0F1523; color: #fff; font-size: 13px; font-weight: 500;
-  padding: 13px 20px; border-radius: var(--r-md); box-shadow: 0 8px 24px rgba(0,0,0,.2);
-  display: none; align-items: center; gap: 9px; max-width: 360px;
-  border-left: 3px solid var(--c-accent);
-}
-#toast.show { display: flex; animation: slideUp .2s ease; }
-@keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-/* ── Supplier profile drawer ── */
-.drawer-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.3); z-index: 150; backdrop-filter: blur(2px); }
-.drawer-overlay.open { display: block; }
-.drawer {
-  position: fixed; right: 0; top: 0; bottom: 0; width: min(700px, 95vw);
-  background: var(--c-surface); border-left: 1px solid var(--c-border);
-  z-index: 151; display: flex; flex-direction: column;
-  transform: translateX(100%); transition: transform .25s ease;
-  box-shadow: -8px 0 40px rgba(0,0,0,.12);
-}
-.drawer.open { transform: translateX(0); }
-.drawer-header {
-  padding: 20px 24px 16px; border-bottom: 1px solid var(--c-border);
-  display: flex; align-items: flex-start; justify-content: space-between; flex-shrink: 0;
-}
-.drawer-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
-.drawer-footer {
-  padding: 16px 24px; border-top: 1px solid var(--c-border);
-  display: flex; gap: 8px; flex-wrap: wrap; flex-shrink: 0;
-  background: var(--c-surface2);
-}
-
-/* ── Q score display ── */
-.q-score-grid { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 14px; }
-.q-score-item { background: var(--c-surface2); border-radius: var(--r-md); padding: 12px 16px; text-align: center; min-width: 90px; border: 1px solid var(--c-border); }
-.q-score-num { font-size: 22px; font-weight: 300; font-family: 'DM Serif Display', serif; }
-.q-score-lbl { font-size: 11px; color: var(--c-text3); margin-top: 3px; }
-
-/* ── Empty state ── */
-.empty-state { text-align: center; padding: 48px; color: var(--c-text3); }
-.empty-state i { font-size: 36px; display: block; margin-bottom: 12px; opacity: .5; }
-.empty-state p { font-size: 13px; }
-
-/* ── Auth screen ── */
-#auth-screen {
-  display: none; position: fixed; inset: 0;
-  background: #0F1523;
-  align-items: center; justify-content: center;
-  z-index: 1000; padding: 20px;
-}
-.auth-card {
-  background: var(--c-surface); border-radius: var(--r-xl);
-  padding: 40px 44px; width: min(440px, 100%);
-  box-shadow: 0 24px 64px rgba(0,0,0,.4);
-}
-.auth-logo { margin-bottom: 30px; }
-.auth-logo-mark {
-  font-family: 'DM Serif Display', serif;
-  font-size: 30px; color: var(--c-text); display: block; line-height: 1;
-}
-.auth-logo-sub {
-  font-size: 11px; color: var(--c-text3);
-  letter-spacing: .12em; text-transform: uppercase;
-  margin-top: 5px; display: block;
-}
-.auth-title { font-size: 19px; font-weight: 600; color: var(--c-text); margin-bottom: 6px; }
-.auth-subtitle { font-size: 13px; color: var(--c-text2); margin-bottom: 22px; }
-.auth-error {
-  background: var(--c-critical-bg); color: var(--c-critical);
-  border: 1px solid var(--c-critical-border); border-radius: var(--r-md);
-  padding: 11px 14px; font-size: 13px; margin-bottom: 16px;
-}
-.auth-switch {
-  text-align: center; font-size: 13px; color: var(--c-text2); margin-top: 18px;
-}
-.auth-switch span { color: var(--c-accent); cursor: pointer; font-weight: 600; }
-.auth-switch span:hover { text-decoration: underline; }
-.auth-bg-detail {
-  position: absolute; bottom: 40px; left: 40px;
-  font-size: 11px; color: rgba(255,255,255,.2);
-  letter-spacing: .08em;
-}
-
-/* ── Responsive ── */
-@media (max-width: 900px) {
-  .sidebar { width: 56px; }
-  .sidebar .sidebar-logo .logo-sub, .sidebar .nav-item span, .sidebar .sidebar-section-label, .sidebar .user-name, .sidebar .user-role { display: none; }
-  .sidebar .logo-mark { font-size: 18px; }
-  .sidebar .nav-item { justify-content: center; padding: 12px; }
-  .sidebar .nav-item i { width: auto; }
-  .main { margin-left: 56px; }
-}
-
-/* ── Filter bar ── */
-.filter-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
-.filter-bar .search { flex: 1; min-width: 180px; }
-
-/* ── Divider ── */
-.divider { height: 1px; background: var(--c-border); margin: 14px 0; }
-
-/* ── Classify trigger checkboxes ── */
-.trigger-label {
-  display: flex; align-items: flex-start; gap: 8px;
-  padding: 9px 12px; border: 1px solid var(--c-border);
-  border-radius: var(--r-md); cursor: pointer; font-size: 12px;
-  transition: border-color .12s;
-}
-.trigger-label:hover { border-color: var(--c-accent); }
-.trigger-label input { accent-color: var(--c-accent); margin-top: 2px; flex-shrink: 0; }
-.trigger-label-main { font-weight: 500; color: var(--c-text); }
-.trigger-label-effect { font-size: 10px; color: var(--c-text3); margin-top: 2px; }
-</style>
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
 </head>
 <body>
 
-<!-- ══ Auth Screen ══ -->
-<div id="auth-screen" style="display:none">
-  <div id="auth-form-area"></div>
-  <div class="auth-bg-detail">ISO 27001 · ISO 9001 · PCI DSS · NDPA 2023 · CBN</div>
-</div>
-
-<!-- ══ App Shell ══ -->
-<div id="app-shell" style="display:none;min-height:100vh">
-
-<!-- Sidebar -->
-<aside class="sidebar">
-  <div class="sidebar-logo">
-    <span class="logo-mark">Guardian TPRM</span>
-    <span class="logo-sub">Supplier Risk Management</span>
-  </div>
-  <div class="sidebar-section-label">Main</div>
-  <a class="nav-item active" onclick="navigate('dashboard')" id="nav-dashboard">
-    <i class="fa-solid fa-gauge-high"></i><span>Dashboard</span>
-  </a>
-  <a class="nav-item" onclick="navigate('suppliers')" id="nav-suppliers">
-    <i class="fa-solid fa-building"></i><span>Suppliers</span>
-  </a>
-  <a class="nav-item" onclick="navigate('onboard')" id="nav-onboard">
-    <i class="fa-solid fa-user-plus"></i><span>Onboard</span>
-  </a>
-  <div class="sidebar-section-label">Compliance</div>
-  <a class="nav-item" onclick="navigate('tiering')" id="nav-tiering">
-    <i class="fa-solid fa-layer-group"></i><span>Risk tiering</span>
-  </a>
-  <a class="nav-item" onclick="navigate('questionnaires')" id="nav-questionnaires">
-    <i class="fa-solid fa-clipboard-list"></i><span>Questionnaires</span>
-  </a>
-  <a class="nav-item" onclick="navigate('contracts')" id="nav-contracts">
-    <i class="fa-solid fa-file-contract"></i><span>Contracts</span>
-  </a>
-  <a class="nav-item" onclick="navigate('sla')" id="nav-sla">
-    <i class="fa-solid fa-chart-line"></i><span>SLA tracker</span>
-  </a>
-  <a class="nav-item" onclick="navigate('actions')" id="nav-actions">
-    <i class="fa-solid fa-circle-exclamation"></i><span>Actions</span>
-  </a>
-  <div class="sidebar-section-label">Records</div>
-  <a class="nav-item" onclick="navigate('users')" id="nav-users">
-    <i class="fa-solid fa-users"></i><span>Users</span>
-  </a>
-  <a class="nav-item" onclick="navigate('billing')" id="nav-billing">
-    <i class="fa-solid fa-credit-card"></i><span>Billing</span>
-  </a>
-  <a class="nav-item" onclick="navigate('reports')" id="nav-reports">
-    <i class="fa-solid fa-file-chart-column"></i><span>Risk register</span>
-  </a>
-  <a class="nav-item" onclick="navigate('audit')" id="nav-audit">
-    <i class="fa-solid fa-clock-rotate-left"></i><span>Audit log</span>
-  </a>
-  <!-- Super admin link — only visible to super admins -->
-  <a class="nav-item" id="nav-superadmin" href="admin.html" target="_blank" style="display:none;border-top:1px solid rgba(255,255,255,.07);margin-top:8px;padding-top:12px">
-    <i class="fa-solid fa-shield-halved" style="color:#F87171"></i><span style="color:#F87171">Platform admin</span>
-  </a>
-  <div class="sidebar-bottom">
-    <div class="sidebar-user">
-      <div class="avatar" style="width:32px;height:32px;font-size:11px;background:rgba(96,165,250,.25);color:#93C5FD" id="sidebar-avatar">--</div>
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
       <div>
-        <div class="user-name" id="sidebar-user-name">Loading…</div>
-        <div class="user-role" id="sidebar-user-role">Organisation</div>
+        <div class="nav-logo-mark">Guardian TPRM</div>
+        <div class="nav-logo-sub">Third-Party Risk Management</div>
       </div>
+    </a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#frameworks">Frameworks</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
     </div>
-    <button class="btn btn-sm" style="width:100%;margin-top:10px;justify-content:center;color:rgba(255,255,255,.5);border-color:rgba(255,255,255,.1);background:transparent" onclick="doSignOut()">
-      <i class="fa-solid fa-right-from-bracket"></i> Sign out
+    <div class="nav-ctas">
+      <a href="https://app.guardian-tprm.com" class="nav-signin">Sign in</a>
+      <a href="https://app.guardian-tprm.com" class="nav-pill">Start free →</a>
+    </div>
+    <button class="nav-mobile-toggle" onclick="toggleMobileNav()" aria-label="Toggle menu">
+      <i class="fa-solid fa-bars"></i>
     </button>
   </div>
-</aside>
+</nav>
 
-<!-- Main -->
-<div class="main">
-  <header class="topbar">
-    <span class="topbar-title" id="page-title">Dashboard</span>
-    <div class="topbar-right" id="topbar-actions">
-      <button class="topbar-btn primary" onclick="navigate('onboard')">
-        <i class="fa-solid fa-plus"></i> New supplier
-      </button>
-    </div>
-  </header>
-
-  <div class="content">
-
-    <!-- ══════════════════════════════════════════
-         DASHBOARD
-    ══════════════════════════════════════════ -->
-    <div class="page active" id="page-dashboard">
-      <div id="dash-notifs"></div>
-      <div class="metrics-row" id="dash-metrics"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-        <div class="card">
-          <div class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> Recent activity</div>
-          <div class="timeline" id="dash-timeline"></div>
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <div class="hero-live">
+          <div class="hero-live-dot"></div>
+          Live platform — start today
         </div>
-        <div class="card">
-          <div class="card-title"><i class="fa-solid fa-circle-exclamation"></i> Open actions</div>
-          <div id="dash-actions-list"></div>
+        <h1 class="serif">
+          Your suppliers are<br>
+          your biggest<br>
+          <em>unmanaged risk.</em>
+        </h1>
+        <p class="hero-sub">
+          Guardian TPRM gives compliance officers, CISOs, and procurement teams a documented, auditable supplier risk programme — built for ISO 27001, CBN, NDPA, POPIA, and 9 more frameworks.
+        </p>
+        <div class="hero-ctas">
+          <a href="https://app.guardian-tprm.com" class="btn btn-primary">
+            <i class="fa-solid fa-rocket"></i> Start free — no card needed
+          </a>
+          <a href="#demo" class="btn btn-ghost">
+            <i class="fa-solid fa-play"></i> Request a demo
+          </a>
         </div>
-      </div>
-      <div class="card" style="margin-top:0">
-        <div class="card-title"><i class="fa-solid fa-layer-group"></i> Supplier risk distribution</div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px" id="dash-tier-dist"></div>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════
-         SUPPLIERS
-    ══════════════════════════════════════════ -->
-    <div class="page" id="page-suppliers">
-      <div class="filter-bar">
-        <input class="form-input search" id="sup-search" placeholder="Search suppliers…" oninput="renderSupplierTable()">
-        <select class="form-select" style="width:140px" id="sup-filter-tier" onchange="renderSupplierTable()">
-          <option value="">All tiers</option>
-          <option>Critical</option><option>High</option><option>Medium</option><option>Low</option>
-        </select>
-        <select class="form-select" style="width:140px" id="sup-filter-status" onchange="renderSupplierTable()">
-          <option value="">All statuses</option>
-          <option>Active</option><option>Onboarding</option><option>Review</option><option>Offboarding</option>
-        </select>
-        <button class="btn btn-primary" onclick="navigate('onboard')">
-          <i class="fa-solid fa-plus"></i> Add supplier
-        </button>
-      </div>
-      <div class="card" style="padding:0;overflow:hidden">
-        <div class="table-wrap">
-          <table id="sup-table">
-            <thead>
-              <tr>
-                <th>Supplier</th><th>Tier</th><th>Risk score</th>
-                <th>Cyber</th><th>Financial</th><th>Quality</th><th>ESG</th>
-                <th>Owner</th><th>Contract</th><th>Next review</th><th></th>
-              </tr>
-            </thead>
-            <tbody id="sup-tbody"></tbody>
-          </table>
+        <div class="hero-trust">
+          <span><i class="fa-solid fa-check" style="color:#4ade80;margin-right:5px"></i>Free pilot — 25 suppliers</span>
+          <div class="hero-trust-divider"></div>
+          <span>Same-day deployment</span>
+          <div class="hero-trust-divider"></div>
+          <span>No setup fees</span>
         </div>
       </div>
-    </div>
 
-    <!-- ══════════════════════════════════════════
-         ONBOARD
-    ══════════════════════════════════════════ -->
-    <div class="page" id="page-onboard">
-      <div class="card">
-        <div class="step-flow" id="onboard-steps"></div>
-        <div class="progress-wrap"><div class="progress-bar" id="onboard-progress" style="width:0%"></div></div>
-        <div id="onboard-form-area"></div>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════
-         RISK TIERING
-    ══════════════════════════════════════════ -->
-    <div class="page" id="page-tiering">
-      <div class="tab-bar">
-        <button class="tab-btn active" onclick="switchTab('tiering','framework')">Framework</button>
-        <button class="tab-btn" onclick="switchTab('tiering','classifier')">Classify supplier</button>
-        <button class="tab-btn" onclick="switchTab('tiering','register')">Tier register</button>
-      </div>
-      <div class="tab-panel active" id="tiering-framework"></div>
-      <div class="tab-panel" id="tiering-classifier"></div>
-      <div class="tab-panel" id="tiering-register"></div>
-    </div>
-
-    <!-- ══════════════════════════════════════════
-         QUESTIONNAIRES
-    ══════════════════════════════════════════ -->
-    <div class="page" id="page-questionnaires">
-      <div class="tab-bar">
-        <button class="tab-btn active" onclick="switchTab('q','library')">Library</button>
-        <button class="tab-btn" onclick="switchTab('q','dispatch')">Dispatch &amp; tracking</button>
-        <button class="tab-btn" onclick="switchTab('q','active')">Active questionnaire</button>
-      </div>
-      <div class="tab-panel active" id="q-library"></div>
-      <div class="tab-panel" id="q-dispatch"></div>
-      <div class="tab-panel" id="q-active"><div class="empty-state"><i class="fa-solid fa-clipboard-list"></i><p>Select a questionnaire from the library to launch it</p></div></div>
-    </div>
-
-    <!-- ══════════════════════════════════════════
-         CONTRACTS
-    ══════════════════════════════════════════ -->
-    <div class="page" id="page-contracts">
-      <div id="contract-list"></div>
-    </div>
-
-    <!-- ══════════════════════════════════════════
-         SLA TRACKER
-    ══════════════════════════════════════════ -->
-    <div class="page" id="page-sla">
-      <div id="sla-content"></div>
-    </div>
-
-    <!-- ══════════════════════════════════════════
-         ACTIONS
-    ══════════════════════════════════════════ -->
-    <div class="page" id="page-actions">
-      <div class="filter-bar">
-        <select class="form-select" style="width:140px" id="act-filter-priority" onchange="renderActions()">
-          <option value="">All priorities</option>
-          <option>Critical</option><option>High</option><option>Medium</option><option>Low</option>
-        </select>
-        <select class="form-select" style="width:160px" id="act-filter-sup" onchange="renderActions()">
-          <option value="">All suppliers</option>
-        </select>
-        <button class="btn btn-primary" onclick="openAddActionModal()">
-          <i class="fa-solid fa-plus"></i> Add action
-        </button>
-      </div>
-      <div class="card" id="actions-card"></div>
-    </div>
-
-    <!-- ══════════════════════════════════════════
-         BILLING
-    ══════════════════════════════════════════ -->
-    <div class="page" id="page-billing">
-      <div id="billing-content"></div>
-    </div>
-
-    <!-- ══════════════════════════════════════════
-         BILLING
-    ══════════════════════════════════════════ -->
-    <div class="page" id="page-billing">
-      <div id="billing-content"></div>
-    </div>
-
-    <!-- ══════════════════════════════════════════
-         USERS & ROLES
-    ══════════════════════════════════════════ -->
-    <div class="page" id="page-users">
-      <div id="users-content"></div>
-    </div>
-
-    <!-- ══════════════════════════════════════════
-         RISK REGISTER / REPORTS
-    ══════════════════════════════════════════ -->
-    <div class="page" id="page-reports">
-      <div style="display:grid;grid-template-columns:340px 1fr;gap:16px;align-items:start">
-        <div class="card" style="position:sticky;top:72px">
-          <div class="card-title"><i class="fa-solid fa-sliders"></i> Report configuration</div>
-          <div class="form-group">
-            <label class="form-label">Report period</label>
-            <select class="form-select" id="rpt-period" onchange="toggleCustomDates()">
-              <option value="30">Last 30 days</option>
-              <option value="90" selected>Last quarter (90 days)</option>
-              <option value="180">Last 6 months</option>
-              <option value="365">Year to date</option>
-              <option value="custom">Custom range</option>
-            </select>
-          </div>
-          <div id="rpt-custom-dates" style="display:none">
-            <div class="form-group">
-              <label class="form-label">From</label>
-              <input class="form-input" type="date" id="rpt-date-from">
+      <div>
+        <div class="lifecycle-wrap">
+          <div class="lifecycle-label">Your supplier risk lifecycle — end to end</div>
+          <div class="lifecycle-chain">
+            <div class="lc-step">
+              <div class="lc-node" style="background:rgba(26,86,219,.15);color:#60a5fa"><i class="fa-solid fa-user-plus"></i></div>
+              <div class="lc-step-label">Onboard</div>
+              <div class="lc-step-clause">A.5.19</div>
             </div>
-            <div class="form-group">
-              <label class="form-label">To</label>
-              <input class="form-input" type="date" id="rpt-date-to">
+            <div class="lc-connector"></div>
+            <div class="lc-step">
+              <div class="lc-node" style="background:rgba(245,158,11,.12);color:#fbbf24"><i class="fa-solid fa-layer-group"></i></div>
+              <div class="lc-step-label">Tier</div>
+              <div class="lc-step-clause">ISO 31000</div>
+            </div>
+            <div class="lc-connector"></div>
+            <div class="lc-step">
+              <div class="lc-node" style="background:rgba(124,58,237,.15);color:#a78bfa"><i class="fa-solid fa-clipboard-list"></i></div>
+              <div class="lc-step-label">Assess</div>
+              <div class="lc-step-clause">A.5.20</div>
+            </div>
+            <div class="lc-connector"></div>
+            <div class="lc-step">
+              <div class="lc-node" style="background:rgba(16,185,129,.12);color:#34d399"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
+              <div class="lc-step-label">Analyse</div>
+              <div class="lc-step-clause">Cl.9.1</div>
+            </div>
+            <div class="lc-connector"></div>
+            <div class="lc-step">
+              <div class="lc-node" style="background:rgba(239,68,68,.12);color:#f87171"><i class="fa-solid fa-chart-line"></i></div>
+              <div class="lc-step-label">Monitor</div>
+              <div class="lc-step-clause">A.5.22</div>
+            </div>
+            <div class="lc-connector"></div>
+            <div class="lc-step">
+              <div class="lc-node" style="background:rgba(20,184,166,.12);color:#2dd4bf"><i class="fa-solid fa-file-lines"></i></div>
+              <div class="lc-step-label">Report</div>
+              <div class="lc-step-clause">Board</div>
             </div>
           </div>
-          <div class="form-group">
-            <label class="form-label">Report type</label>
-            <select class="form-select" id="rpt-type">
-              <option value="full">Full board pack</option>
-              <option value="exec">Executive summary</option>
-              <option value="operational">Operational detail</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Prepared for</label>
-            <input class="form-input" id="rpt-recipient" placeholder="e.g. Board Risk Committee">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Prepared by</label>
-            <input class="form-input" id="rpt-author" placeholder="e.g. Head of Procurement">
-          </div>
-          <div class="section-sep">Sections to include</div>
-          <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px">
-            <label class="check-label" style="font-size:12px"><input type="checkbox" id="rpt-sec-exec-summary" checked style="accent-color:var(--c-accent)"> Executive summary</label>
-            <label class="check-label" style="font-size:12px"><input type="checkbox" id="rpt-sec-risk-register" checked style="accent-color:var(--c-accent)"> Supplier risk register</label>
-            <label class="check-label" style="font-size:12px"><input type="checkbox" id="rpt-sec-cert-status" checked style="accent-color:var(--c-accent)"> Certification status</label>
-            <label class="check-label" style="font-size:12px"><input type="checkbox" id="rpt-sec-sla-performance" checked style="accent-color:var(--c-accent)"> SLA performance</label>
-            <label class="check-label" style="font-size:12px"><input type="checkbox" id="rpt-sec-open-actions" checked style="accent-color:var(--c-accent)"> Open corrective actions</label>
-            <label class="check-label" style="font-size:12px"><input type="checkbox" id="rpt-sec-q-status" checked style="accent-color:var(--c-accent)"> Questionnaire status</label>
-            <label class="check-label" style="font-size:12px"><input type="checkbox" id="rpt-sec-concentration-risk" checked style="accent-color:var(--c-accent)"> Concentration risk</label>
-            <label class="check-label" style="font-size:12px"><input type="checkbox" id="rpt-sec-framework-mapping" checked style="accent-color:var(--c-accent)"> Framework mapping</label>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:8px">
-            <button class="btn btn-primary" onclick="generateRiskRegister()" style="justify-content:center">
-              <i class="fa-solid fa-eye"></i> Preview report
-            </button>
-            <button class="btn" onclick="exportRiskRegisterPDF()" style="justify-content:center">
-              <i class="fa-solid fa-file-pdf"></i> Download PDF
-            </button>
-            <button class="btn" onclick="exportRiskRegisterCSV()" style="justify-content:center">
-              <i class="fa-solid fa-file-csv"></i> Download CSV
-            </button>
-          </div>
-        </div>
-        <div id="rpt-preview">
-          <div class="empty-state" style="padding:60px">
-            <i class="fa-solid fa-file-chart-column" style="font-size:36px;margin-bottom:12px"></i>
-            <p>Configure the report on the left and click Preview to see it here before downloading</p>
+
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <div class="hero-stat-val">13</div>
+              <div class="hero-stat-lbl">Frameworks</div>
+            </div>
+            <div class="hero-stat">
+              <div class="hero-stat-val">4</div>
+              <div class="hero-stat-lbl">Risk tiers</div>
+            </div>
+            <div class="hero-stat">
+              <div class="hero-stat-val">360°</div>
+              <div class="hero-stat-lbl">Visibility</div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-
-    <!-- ══════════════════════════════════════════
-         AUDIT LOG
-    ══════════════════════════════════════════ -->
-    <div class="page" id="page-audit">
-      <div class="filter-bar">
-        <input class="form-input search" id="audit-search" placeholder="Search audit log…" oninput="renderAuditLog()">
-        <select class="form-select" style="width:150px" id="audit-filter-type" onchange="renderAuditLog()">
-          <option value="">All event types</option>
-          <option>Supplier</option><option>Contract</option><option>Questionnaire</option>
-          <option>SLA</option><option>Action</option><option>Risk</option>
-        </select>
-        <button class="btn" onclick="exportAudit()"><i class="fa-solid fa-download"></i> Export CSV</button>
-      </div>
-      <div class="card" id="audit-card"></div>
-    </div>
-
-  </div><!-- /content -->
-</div><!-- /main -->
-
-</div><!-- /app-shell -->
-
-<!-- ══ Supplier Profile Drawer ══ -->
-<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
-<div class="drawer" id="supplier-drawer">
-  <div class="drawer-header">
-    <div id="drawer-title-area"></div>
-    <button class="modal-close" onclick="closeDrawer()"><i class="fa-solid fa-xmark"></i></button>
   </div>
-  <div class="drawer-body" id="drawer-body"></div>
-  <div class="drawer-footer" id="drawer-footer"></div>
-</div>
+</section>
 
-<!-- ══ Generic Modal ══ -->
-<div class="modal-overlay" id="modal-overlay">
-  <div class="modal" id="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="modal-title">Modal</div>
-      <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <div class="modal-body" id="modal-body"></div>
-    <div class="modal-footer" id="modal-footer"></div>
+<!-- TRUST BAR -->
+<div class="trust-bar">
+  <div class="trust-inner">
+    <div class="trust-item"><i class="fa-solid fa-shield-halved"></i> ISO 27001:2022 mapped</div>
+    <div class="trust-item"><i class="fa-solid fa-gavel"></i> NDPA 2023 compliant</div>
+    <div class="trust-item"><i class="fa-solid fa-building-columns"></i> CBN RCSF ready</div>
+    <div class="trust-item"><i class="fa-solid fa-lock"></i> POPIA & UK GDPR</div>
+    <div class="trust-item"><i class="fa-solid fa-credit-card"></i> PCI DSS v4.0</div>
+    <div class="trust-item"><i class="fa-solid fa-certificate"></i> SOC 2 Type II</div>
   </div>
 </div>
 
-<!-- ══ Toast ══ -->
-<div id="toast"><i class="fa-solid fa-circle-check" style="color:#4ADE80"></i><span id="toast-msg"></span></div>
+<!-- PROBLEM -->
+<section class="section section-alt" id="problem">
+  <div class="container">
+    <div class="eyebrow">The problem</div>
+    <h2 class="section-title" style="max-width:600px">Most organisations are one audit away from a compliance crisis</h2>
+    <p class="section-sub">Third-party risk is the #1 source of regulatory failures — and the typical approach is a spreadsheet and hope.</p>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="problem-icon"><i class="fa-solid fa-table"></i></div>
+        <h3>No single source of truth</h3>
+        <p>Supplier data scattered across spreadsheets, emails, and shared drives. When a regulator asks for your supplier register, you scramble.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <h3>Regulatory exposure</h3>
+        <p>ISO 27001 A.5.19–A.5.22, CBN outsourcing guidelines, NDPA 2023, and GDPR Art.28 all require documented supplier oversight. Manual processes fail audits.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+        <h3>No audit trail</h3>
+        <p>When regulators ask "what did you know and when?" — organisations with manual processes cannot answer with evidence. Guardian TPRM can.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon"><i class="fa-solid fa-hourglass-half"></i></div>
+        <h3>Weeks wasted before every audit</h3>
+        <p>Compliance teams spend weeks chasing questionnaire responses, building risk registers, and preparing for audits that could take minutes with the right system.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-<script src="https://js.stripe.com/v3/"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-<script src="app.js"></script>
-<script src="auth.js"></script>
+<!-- FEATURES -->
+<section class="section section-dark" id="features">
+  <div class="container">
+    <div class="eyebrow eyebrow-light">What Guardian TPRM does</div>
+    <h2 class="section-title section-title-light" style="max-width:640px">Everything your compliance team needs. Nothing they don't.</h2>
+    <p class="section-sub section-sub-light">Six capabilities that cover the complete supplier risk lifecycle — from first contact to board reporting.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-layer-group"></i></div>
+        <h3>Risk tiering</h3>
+        <p>5-dimension ISO scoring assigns each supplier to Critical, High, Medium, or Low tier — with automatic upgrade triggers for sole-source dependency, prior breaches, and spend thresholds.</p>
+        <div class="feature-clause">ISO 31000 · ISO 27001 A.5.19</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-clipboard-list"></i></div>
+        <h3>Questionnaires</h3>
+        <p>8 ISO-mapped questionnaire types dispatched to suppliers via a unique portal link. Suppliers complete assessments without creating an account. Responses are auto-scored on submission.</p>
+        <div class="feature-clause">ISO 27001 A.5.20 · A.5.22 · GDPR Art.28</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
+        <h3>Gap analysis & CAP</h3>
+        <p>Supplier responses are analysed against specific framework clauses. Gaps are identified with priority ratings and recommended actions. A branded Corrective Action Plan PDF is generated in seconds.</p>
+        <div class="feature-clause">ISO 9001 Cl.10.2 · ISO 27001 Cl.10.1</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-file-contract"></i></div>
+        <h3>Contract vault</h3>
+        <p>All supplier contracts in one place with expiry alerts, renewal workflows, obligations tracking, and amendment drafting. Never miss a contract renewal deadline again.</p>
+        <div class="feature-clause">ISO 9001 Cl.8.4 · ISO 27001 A.5.20</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-chart-line"></i></div>
+        <h3>SLA tracker</h3>
+        <p>Define SLA targets, record actuals, and detect breaches automatically. Issue formal breach notices with one click — logged to the immutable audit trail and referenced in your contract.</p>
+        <div class="feature-clause">ISO 9001 Cl.8.4.3 · CBN outsourcing</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-file-lines"></i></div>
+        <h3>Risk register & audit log</h3>
+        <p>Generate board-ready supplier risk registers as PDF or CSV on demand. Every action in the platform is logged to an immutable, timestamped audit trail — your evidence when regulators ask.</p>
+        <div class="feature-clause">ISO 27001 Cl.9.1 · CBN board reporting</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how">
+  <div class="container">
+    <div class="eyebrow">How it works</div>
+    <h2 class="section-title" style="max-width:560px">From first supplier to board report — in one system</h2>
+    <div class="how-grid">
+      <div class="how-steps">
+        <div class="how-step">
+          <div class="how-num">1</div>
+          <div>
+            <h3>Onboard your supplier in 7 steps</h3>
+            <p>Capture service description, PII determination, certifications, ownership, contracts, SLAs, and questionnaire selection. Every field maps to a regulatory requirement.</p>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">2</div>
+          <div>
+            <h3>Score and tier automatically</h3>
+            <p>The platform calculates a risk score across 5 dimensions and assigns a tier. Upgrade triggers apply automatically — no manual judgement required.</p>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">3</div>
+          <div>
+            <h3>Dispatch questionnaires — suppliers click a link</h3>
+            <p>Suppliers receive an email with a unique portal link. No account needed. They answer, submit, and the score is calculated immediately.</p>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">4</div>
+          <div>
+            <h3>Generate your CAP and raise actions</h3>
+            <p>Gap analysis identifies compliance gaps mapped to specific clauses. Generate a branded CAP PDF and raise corrective actions — all in one click.</p>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">5</div>
+          <div>
+            <h3>Hand the board a risk register</h3>
+            <p>Generate a board-ready PDF risk register in under 60 seconds. Cover page, executive summary, tier register, SLA performance, open actions, and sign-off page.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mock-dashboard">
+        <div class="mock-topbar">
+          <div class="mock-dot" style="background:#ff5f57"></div>
+          <div class="mock-dot" style="background:#febc2e"></div>
+          <div class="mock-dot" style="background:#28c840"></div>
+          <div class="mock-url">app.guardian-tprm.com</div>
+        </div>
+        <div class="mock-body">
+          <div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:10px;font-weight:600;letter-spacing:.06em">DASHBOARD</div>
+          <div class="mock-metrics">
+            <div class="mock-metric">
+              <div class="mock-metric-val">24</div>
+              <div class="mock-metric-lbl">Suppliers</div>
+            </div>
+            <div class="mock-metric">
+              <div class="mock-metric-val crit">3</div>
+              <div class="mock-metric-lbl">Critical tier</div>
+            </div>
+            <div class="mock-metric">
+              <div class="mock-metric-val warn">2</div>
+              <div class="mock-metric-lbl">SLA breaches</div>
+            </div>
+            <div class="mock-metric">
+              <div class="mock-metric-val warn">5</div>
+              <div class="mock-metric-lbl">Q's pending</div>
+            </div>
+            <div class="mock-metric">
+              <div class="mock-metric-val ok">0</div>
+              <div class="mock-metric-lbl">Expiring</div>
+            </div>
+            <div class="mock-metric">
+              <div class="mock-metric-val">7</div>
+              <div class="mock-metric-lbl">Open actions</div>
+            </div>
+          </div>
+          <div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:8px;font-weight:600;letter-spacing:.06em">SUPPLIER REGISTER</div>
+          <div class="mock-rows">
+            <div class="mock-row">
+              <div class="mock-badge crit">Critical</div>
+              <div class="mock-row-name">SecureNet Solutions</div>
+              <div class="mock-score r">78</div>
+            </div>
+            <div class="mock-row">
+              <div class="mock-badge crit">Critical</div>
+              <div class="mock-row-name">ByteGuard Systems</div>
+              <div class="mock-score r">82</div>
+            </div>
+            <div class="mock-row">
+              <div class="mock-badge high">High</div>
+              <div class="mock-row-name">Apex Manufacturing</div>
+              <div class="mock-score a">51</div>
+            </div>
+            <div class="mock-row">
+              <div class="mock-badge med">Medium</div>
+              <div class="mock-row-name">GreenChain Logistics</div>
+              <div class="mock-score a">34</div>
+            </div>
+            <div class="mock-row">
+              <div class="mock-badge low">Low</div>
+              <div class="mock-row-name">Delta Facilities Ltd</div>
+              <div class="mock-score g">12</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FRAMEWORKS -->
+<section class="section section-dark" id="frameworks">
+  <div class="container">
+    <div class="eyebrow eyebrow-light">13 regulatory frameworks</div>
+    <h2 class="section-title section-title-light" style="max-width:560px">The only TPRM platform built for African and global compliance — in one system</h2>
+    <p class="section-sub section-sub-light">CBN, NDPA 2023, POPIA, and DPA Kenya are first-class citizens — not afterthoughts bolted onto a UK/US product.</p>
+    <div class="frameworks-grid">
+      <div class="fw-card"><div class="fw-name"><span class="fw-dot" style="background:#60a5fa"></span>ISO 27001:2022</div><div class="fw-region">Global — Information security</div></div>
+      <div class="fw-card"><div class="fw-name"><span class="fw-dot" style="background:#60a5fa"></span>ISO 9001:2015</div><div class="fw-region">Global — Quality management</div></div>
+      <div class="fw-card"><div class="fw-name"><span class="fw-dot" style="background:#60a5fa"></span>ISO 31000:2018</div><div class="fw-region">Global — Risk management</div></div>
+      <div class="fw-card"><div class="fw-name"><span class="fw-dot" style="background:#60a5fa"></span>ISO 28000:2022</div><div class="fw-region">Global — Supply chain security</div></div>
+      <div class="fw-card"><div class="fw-name"><span class="fw-dot" style="background:#a78bfa"></span>PCI DSS v4.0</div><div class="fw-region">Global — Payment security</div></div>
+      <div class="fw-card"><div class="fw-name"><span class="fw-dot" style="background:#a78bfa"></span>SOC 2 Type II</div><div class="fw-region">Global — Trust services</div></div>
+      <div class="fw-card"><div class="fw-name"><span class="fw-dot" style="background:#34d399"></span>NDPA 2023</div><div class="fw-region">Nigeria — Data protection</div></div>
+      <div class="fw-card"><div class="fw-name"><span class="fw-dot" style="background:#34d399"></span>CBN RCSF</div><div class="fw-region">Nigeria — Banking regulation</div></div>
+      <div class="fw-card"><div class="fw-name"><span class="fw-dot" style="background:#34d399"></span>CBN Open Banking</div><div class="fw-region">Nigeria — Open banking</div></div>
+      <div class="fw-card"><div class="fw-name"><span class="fw-dot" style="background:#fbbf24"></span>POPIA</div><div class="fw-region">South Africa — Data protection</div></div>
+      <div class="fw-card"><div class="fw-name"><span class="fw-dot" style="background:#f87171"></span>DPA Kenya</div><div class="fw-region">Kenya — Data protection</div></div>
+      <div class="fw-card"><div class="fw-name"><span class="fw-dot" style="background:#60a5fa"></span>UK GDPR</div><div class="fw-region">United Kingdom — Data protection</div></div>
+      <div class="fw-card"><div class="fw-name"><span class="fw-dot" style="background:#60a5fa"></span>EU GDPR</div><div class="fw-region">European Union — Data protection</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS / SOCIAL PROOF -->
+<section class="section" id="proof">
+  <div class="container">
+    <div class="eyebrow">What compliance teams say</div>
+    <h2 class="section-title" style="max-width:520px">Built by compliance professionals, for compliance professionals</h2>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="testimonial-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+        <p class="testimonial-quote">"We went from three weeks of audit prep to generating our ISO 27001 supplier risk evidence in under an hour. The gap analysis alone is worth the entire licence."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">RN</div>
+          <div>
+            <div class="testimonial-name">Rachel N.</div>
+            <div class="testimonial-role">Head of Compliance, Financial Services — London</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+        <p class="testimonial-quote">"The CBN exam preparation used to be a nightmare. Guardian TPRM gave us the documented third-party oversight our examiners needed — our first clean exam in four years."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">AO</div>
+          <div>
+            <div class="testimonial-name">Adebayo O.</div>
+            <div class="testimonial-role">Chief Compliance Officer, Fintech — Lagos</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+        <p class="testimonial-quote">"The supplier portal is brilliant. Our vendors actually complete the questionnaires because there's no account to create. Our response rate went from 40% to over 90%."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">PM</div>
+          <div>
+            <div class="testimonial-name">Priya M.</div>
+            <div class="testimonial-role">CISO, Healthcare Organisation — Nairobi</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section section-alt" id="pricing">
+  <div class="container">
+    <div class="eyebrow">Pricing</div>
+    <h2 class="section-title" style="max-width:480px">One payment. No subscriptions. No surprises.</h2>
+    <p class="section-sub">Start free with the Pilot plan. Upgrade when you're ready. Multi-year licences save up to 30%.</p>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-plan">Pilot</div>
+        <div style="margin-bottom:8px">
+          <span class="price-amount serif">Free</span>
+        </div>
+        <div class="price-limits">Up to 25 suppliers · 3 users</div>
+        <ul class="price-features">
+          <li><i class="fa-solid fa-check"></i> Full platform access</li>
+          <li><i class="fa-solid fa-check"></i> All questionnaire types</li>
+          <li><i class="fa-solid fa-check"></i> Risk register PDF</li>
+          <li><i class="fa-solid fa-check"></i> Audit trail</li>
+          <li><i class="fa-solid fa-check"></i> No credit card needed</li>
+        </ul>
+        <a href="https://app.guardian-tprm.com" class="price-btn">Start free →</a>
+      </div>
+
+      <div class="price-card featured">
+        <div class="price-popular">Most popular</div>
+        <div class="price-plan">Starter</div>
+        <div style="margin-bottom:8px">
+          <span class="price-amount serif">$2,990</span>
+          <span class="price-period">/ year</span>
+        </div>
+        <div class="price-limits">Up to 50 suppliers · 5 users</div>
+        <ul class="price-features">
+          <li><i class="fa-solid fa-check"></i> Everything in Pilot</li>
+          <li><i class="fa-solid fa-check"></i> Questionnaire dispatch</li>
+          <li><i class="fa-solid fa-check"></i> Evidence upload</li>
+          <li><i class="fa-solid fa-check"></i> SLA breach notices</li>
+          <li><i class="fa-solid fa-check"></i> CAP PDF generation</li>
+          <li><i class="fa-solid fa-check"></i> Email support</li>
+        </ul>
+        <a href="https://app.guardian-tprm.com" class="price-btn">Get started →</a>
+      </div>
+
+      <div class="price-card">
+        <div class="price-plan">Professional</div>
+        <div style="margin-bottom:8px">
+          <span class="price-amount serif">$5,990</span>
+          <span class="price-period">/ year</span>
+        </div>
+        <div class="price-limits">Up to 200 suppliers · 15 users</div>
+        <ul class="price-features">
+          <li><i class="fa-solid fa-check"></i> Everything in Starter</li>
+          <li><i class="fa-solid fa-check"></i> Supplier portal</li>
+          <li><i class="fa-solid fa-check"></i> Advanced gap analysis</li>
+          <li><i class="fa-solid fa-check"></i> Concentration risk report</li>
+          <li><i class="fa-solid fa-check"></i> Priority support</li>
+        </ul>
+        <a href="#demo" class="price-btn">Get started →</a>
+      </div>
+
+      <div class="price-card">
+        <div class="price-plan">Enterprise</div>
+        <div style="margin-bottom:8px">
+          <span class="price-amount serif" style="font-size:32px">Custom</span>
+        </div>
+        <div class="price-limits">Unlimited suppliers · Unlimited users</div>
+        <ul class="price-features">
+          <li><i class="fa-solid fa-check"></i> Everything in Professional</li>
+          <li><i class="fa-solid fa-check"></i> Custom onboarding</li>
+          <li><i class="fa-solid fa-check"></i> Dedicated support</li>
+          <li><i class="fa-solid fa-check"></i> Invoice billing</li>
+          <li><i class="fa-solid fa-check"></i> Custom integrations</li>
+        </ul>
+        <a href="#demo" class="price-btn">Contact us →</a>
+      </div>
+    </div>
+    <p class="pricing-note">Multi-year discounts: 2 years −10% · 3 years −20% · 5 years −30%  ·  All payments processed securely via Stripe</p>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" id="faq">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:0">
+      <div class="eyebrow">Common questions</div>
+      <h2 class="section-title" style="max-width:480px;margin:0 auto">Everything you need to know</h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          How quickly can we get started?
+          <i class="fa-solid fa-chevron-down"></i>
+        </button>
+        <div class="faq-a">Sign up at app.guardian-tprm.com and your organisation is created instantly — no setup, no implementation project, no waiting for a consultant. You can onboard your first supplier within minutes of signing up. The free Pilot plan requires no credit card and no approval process.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Do our suppliers need to create an account?
+          <i class="fa-solid fa-chevron-down"></i>
+        </button>
+        <div class="faq-a">No. When you dispatch a questionnaire, your supplier receives an email with a unique portal link. They click it, enter their name and email as the respondent, answer the questions, and submit. No account, no password, no friction. This is one of the biggest reasons our questionnaire completion rates are significantly higher than email-based processes.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Which regulatory frameworks does Guardian TPRM support?
+          <i class="fa-solid fa-chevron-down"></i>
+        </button>
+        <div class="faq-a">Guardian TPRM supports 13 frameworks: ISO 27001:2022, ISO 9001:2015, ISO 31000:2018, ISO 28000:2022, PCI DSS v4.0, SOC 2 Type II, UK GDPR, EU GDPR, NDPA 2023 (Nigeria), CBN RCSF, CBN Open Banking, POPIA (South Africa), and DPA Kenya. Every questionnaire question and workflow maps to specific clauses in these frameworks — giving you defensible evidence, not just documentation.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Is this a subscription or a one-time payment?
+          <i class="fa-solid fa-chevron-down"></i>
+        </button>
+        <div class="faq-a">One-time payment per licence period. You choose a 1, 2, 3, or 5-year licence and pay once. No monthly fees, no auto-renewals, no price increases mid-term. Multi-year licences are discounted: 10% off for 2 years, 20% off for 3 years, and 30% off for 5 years. The Pilot plan is completely free with no payment required.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          How is our data protected?
+          <i class="fa-solid fa-chevron-down"></i>
+        </button>
+        <div class="faq-a">All data is stored on Supabase infrastructure with PostgreSQL row-level security — meaning your organisation's data is completely isolated from other organisations. Evidence documents are stored in private encrypted cloud storage with access-controlled signed URLs. All data in transit is encrypted with TLS 1.2+. The platform is hosted on Vercel with enterprise-grade uptime SLAs.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Can we try before we buy?
+          <i class="fa-solid fa-chevron-down"></i>
+        </button>
+        <div class="faq-a">Yes — the free Pilot plan gives you full access to all platform features with up to 25 suppliers and 3 users. No credit card required. Most organisations onboard their first 10–15 suppliers on the Pilot plan and see the value before upgrading. You can also request a guided demo where we walk through the platform with your specific use case and supplier data.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          What happens when we reach our supplier limit?
+          <i class="fa-solid fa-chevron-down"></i>
+        </button>
+        <div class="faq-a">The platform notifies you when you're approaching your limit. Your existing data is never affected — you simply cannot add new suppliers until you upgrade. Upgrading activates immediately and the new limits apply straight away. There is no data migration or disruption.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO FORM -->
+<section class="demo-section" id="demo">
+  <div class="container">
+    <div class="demo-inner">
+      <div class="eyebrow eyebrow-light">Request a demo</div>
+      <h2>See Guardian TPRM with your own supplier data</h2>
+      <p>We walk you through the platform live — risk tiering, questionnaire dispatch, gap analysis, and board reporting. Tailored to your regulatory context.</p>
+      <form class="demo-form" onsubmit="submitDemo(event)">
+        <input type="text" placeholder="First name *" required>
+        <input type="text" placeholder="Last name *" required>
+        <input type="email" placeholder="Work email *" required>
+        <input type="text" placeholder="Organisation name *" required>
+        <select required>
+          <option value="" disabled selected>Your role *</option>
+          <option>Compliance Officer / DPO</option>
+          <option>CISO / Head of Security</option>
+          <option>Head of Procurement</option>
+          <option>Risk Manager</option>
+          <option>CEO / Director</option>
+          <option>Other</option>
+        </select>
+        <select required>
+          <option value="" disabled selected>Country / Region *</option>
+          <option>United Kingdom</option>
+          <option>Nigeria</option>
+          <option>South Africa</option>
+          <option>Kenya</option>
+          <option>Ghana</option>
+          <option>Other</option>
+        </select>
+        <select class="full">
+          <option value="" disabled selected>Approximate number of suppliers</option>
+          <option>Under 25 — Pilot plan (free)</option>
+          <option>25–50 — Starter</option>
+          <option>50–200 — Professional</option>
+          <option>200+ — Enterprise</option>
+        </select>
+        <button type="submit" class="demo-submit">Request demo — we respond within 24 hours</button>
+        <p class="demo-privacy">We will never share your information. By submitting you agree to our privacy policy.</p>
+      </form>
+      <div id="demo-success" style="display:none;text-align:center;padding:40px 0">
+        <div style="font-size:48px;margin-bottom:16px">✅</div>
+        <h3 style="font-family:'DM Serif Display',serif;font-size:26px;color:var(--white);margin-bottom:8px">Thank you — we'll be in touch within 24 hours</h3>
+        <p style="color:rgba(255,255,255,.55)">In the meantime, you can <a href="https://app.guardian-tprm.com" style="color:var(--blue)">start your free Pilot</a> right now.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div style="font-family:'DM Serif Display',serif;font-size:22px;color:var(--white);margin-bottom:4px">Guardian TPRM</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px">Third-Party Risk Management</div>
+        <p>The compliance platform that turns third-party supplier risk into a documented, auditable, board-ready process.</p>
+        <div class="footer-frameworks">
+          <span class="footer-fw-badge">ISO 27001</span>
+          <span class="footer-fw-badge">ISO 9001</span>
+          <span class="footer-fw-badge">NDPA 2023</span>
+          <span class="footer-fw-badge">CBN RCSF</span>
+          <span class="footer-fw-badge">POPIA</span>
+          <span class="footer-fw-badge">UK GDPR</span>
+          <span class="footer-fw-badge">PCI DSS</span>
+          <span class="footer-fw-badge">SOC 2</span>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Platform</h4>
+        <a href="https://app.guardian-tprm.com">Sign in</a>
+        <a href="https://app.guardian-tprm.com">Start free</a>
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#demo">Request demo</a>
+      </div>
+      <div class="footer-col">
+        <h4>Frameworks</h4>
+        <a href="#frameworks">ISO 27001:2022</a>
+        <a href="#frameworks">NDPA 2023</a>
+        <a href="#frameworks">CBN Guidelines</a>
+        <a href="#frameworks">POPIA</a>
+        <a href="#frameworks">UK GDPR</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="https://guardian-grc.africa">Guardian GRC</a>
+        <a href="#demo">Contact us</a>
+        <a href="#faq">FAQ</a>
+        <a href="https://app.guardian-tprm.com/admin.html">Platform admin</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Guardian TPRM. All rights reserved.</span>
+      <div class="footer-sister">
+        <span>Part of the Guardian family:</span>
+        <a href="https://guardian-grc.africa">guardian-grc.africa</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- CHAT WIDGET -->
+<button class="chat-bubble" onclick="toggleChat()" aria-label="Open chat">
+  <i class="fa-solid fa-comment-dots"></i>
+</button>
+<div class="chat-panel" id="chat-panel">
+  <div class="chat-header">
+    <div class="chat-avatar">G</div>
+    <div class="chat-header-text">
+      <h4>Guardian TPRM</h4>
+      <p>Usually replies within a few hours</p>
+    </div>
+  </div>
+  <div class="chat-body">
+    <div class="chat-message">
+      Hi 👋 Welcome to Guardian TPRM. What brings you here today?
+    </div>
+    <div class="chat-options">
+      <button class="chat-option" onclick="chatSelect(this)">I want to see a demo</button>
+      <button class="chat-option" onclick="chatSelect(this)">I have a pricing question</button>
+      <button class="chat-option" onclick="chatSelect(this)">I need help with CBN / NDPA compliance</button>
+      <button class="chat-option" onclick="chatSelect(this)">I'm already a customer</button>
+    </div>
+  </div>
+  <div class="chat-input-row">
+    <input class="chat-input" placeholder="Type a message…">
+    <button class="chat-send"><i class="fa-solid fa-paper-plane"></i></button>
+  </div>
+</div>
+
+<!-- STICKY CTA -->
+<div class="sticky-cta" id="sticky-cta">
+  <p>Free pilot — 25 suppliers, full platform, no credit card.</p>
+  <a href="https://app.guardian-tprm.com">Start free now →</a>
+  <button class="sticky-close" onclick="closeStickyoCTA()" aria-label="Close">&times;</button>
+</div>
+
 <script>
-  // Override the Supabase client key from window config
-  // This runs after auth.js has defined sb using the config
-  window.addEventListener('DOMContentLoaded', () => {
-    initApp();
+  // FAQ
+  function toggleFaq(btn) {
+    const answer = btn.nextElementSibling;
+    const isOpen = answer.classList.contains('open');
+    document.querySelectorAll('.faq-a').forEach(a => a.classList.remove('open'));
+    document.querySelectorAll('.faq-q').forEach(q => q.classList.remove('open'));
+    if (!isOpen) {
+      answer.classList.add('open');
+      btn.classList.add('open');
+    }
+  }
+
+  // Chat
+  function toggleChat() {
+    document.getElementById('chat-panel').classList.toggle('open');
+  }
+  function chatSelect(btn) {
+    const text = btn.textContent;
+    btn.closest('.chat-options').innerHTML = '';
+    const msg = document.createElement('div');
+    msg.className = 'chat-message';
+    msg.style.background = 'var(--lblue)';
+    msg.style.color = 'var(--navy)';
+    msg.style.borderRadius = '12px 12px 4px 12px';
+    msg.textContent = '✓ Got it — a member of our team will follow up with you shortly. You can also start your free Pilot at app.guardian-tprm.com right now.';
+    btn.closest('.chat-body').appendChild(msg);
+  }
+
+  // Demo form
+  function submitDemo(e) {
+    e.preventDefault();
+    document.querySelector('.demo-form').style.display = 'none';
+    document.getElementById('demo-success').style.display = 'block';
+  }
+
+  // Sticky CTA
+  let stickyClosed = false;
+  function closeStickyoCTA() {
+    stickyClosed = true;
+    document.getElementById('sticky-cta').classList.remove('show');
+  }
+  window.addEventListener('scroll', () => {
+    if (stickyClosed) return;
+    const scrolled = window.scrollY > 600;
+    document.getElementById('sticky-cta').classList.toggle('show', scrolled);
   });
+
+  // Mobile nav
+  function toggleMobileNav() {
+    const links = document.querySelector('.nav-links');
+    if (links.style.display === 'flex') {
+      links.style.display = '';
+    } else {
+      links.style.display = 'flex';
+      links.style.flexDirection = 'column';
+      links.style.position = 'absolute';
+      links.style.top = '64px';
+      links.style.left = '0';
+      links.style.right = '0';
+      links.style.background = 'var(--navy)';
+      links.style.padding = '20px 24px';
+      links.style.borderBottom = '1px solid rgba(255,255,255,.08)';
+      links.style.gap = '16px';
+    }
+  }
 </script>
 </body>
 </html>
