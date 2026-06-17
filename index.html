@@ -1353,16 +1353,29 @@
     document.getElementById('chat-panel').classList.toggle('open');
   }
   function chatSelect(btn) {
-    const text = btn.textContent;
-    btn.closest('.chat-options').innerHTML = '';
-    const msg = document.createElement('div');
-    msg.className = 'chat-message';
-    msg.style.background = 'var(--lblue)';
-    msg.style.color = 'var(--navy)';
-    msg.style.borderRadius = '12px 12px 4px 12px';
-    msg.textContent = '✓ Got it — a member of our team will follow up with you shortly. You can also start your free Pilot at app.guardian-tprm.com right now.';
-    btn.closest('.chat-body').appendChild(msg);
-  }
+  const text = btn.textContent.trim();
+  const optionsDiv = btn.closest('.chat-options');
+  const body = btn.closest('.chat-body');
+
+  // Show user's selection as a message bubble
+  optionsDiv.innerHTML = '';
+  const userMsg = document.createElement('div');
+  userMsg.className = 'chat-message';
+  userMsg.style.cssText = 'background:var(--lblue);color:var(--navy);border-radius:12px 12px 4px 12px;margin-left:40px';
+  userMsg.textContent = text;
+  body.appendChild(userMsg);
+
+  setTimeout(() => {
+    if (text === 'I want to see a demo') {
+      chatState.flow = 'demo';
+      chatState.step = 'name';
+      addBotMessage(body, "Great! I'd love to set that up. What's your name?");
+    } else {
+      addBotMessage(body, "Thanks — a member of our team will follow up with you shortly. You can also start your free Pilot at app.guardian-tprm.com right now.");
+    }
+    body.scrollTop = body.scrollHeight;
+  }, 600);
+}
 
   // Demo form
   function submitDemo(e) {
@@ -1401,26 +1414,76 @@
       links.style.gap = '16px';
     }
   }
-  function sendChatMessage() {
+  const chatState = { flow: null, step: null, name: '', email: '', company: '' };
+
+function addBotMessage(body, text) {
+  const msg = document.createElement('div');
+  msg.className = 'chat-message';
+  msg.textContent = text;
+  body.appendChild(msg);
+  body.scrollTop = body.scrollHeight;
+}
+
+function sendChatMessage() {
   const input = document.querySelector('.chat-input');
   const text = input.value.trim();
   if (!text) return;
   const body = document.querySelector('.chat-body');
+
+  // Show user's typed message
   const userMsg = document.createElement('div');
   userMsg.className = 'chat-message';
   userMsg.style.cssText = 'background:var(--lblue);color:var(--navy);border-radius:12px 12px 4px 12px;margin-left:40px';
   userMsg.textContent = text;
   body.appendChild(userMsg);
   input.value = '';
-  setTimeout(() => {
-    const reply = document.createElement('div');
-    reply.className = 'chat-message';
-    reply.textContent = 'Thanks for your message — a member of our team will follow up with you shortly. You can also start your free Pilot at app.guardian-tprm.com right now.';
-    body.appendChild(reply);
-    body.scrollTop = body.scrollHeight;
-  }, 800);
   body.scrollTop = body.scrollHeight;
+
+  setTimeout(() => {
+    if (chatState.flow === 'demo') {
+      if (chatState.step === 'name') {
+        chatState.name = text;
+        chatState.step = 'email';
+        addBotMessage(body, "Nice to meet you, " + text + "! What's your work email address?");
+
+      } else if (chatState.step === 'email') {
+        chatState.email = text;
+        chatState.step = 'company';
+        addBotMessage(body, "And which company are you with?");
+
+      } else if (chatState.step === 'company') {
+        chatState.company = text;
+        chatState.step = 'done';
+        addBotMessage(body, "Perfect, thank you! We'll be in touch with you shortly to arrange your demo. In the meantime, you can start your free Pilot at app.guardian-tprm.com.");
+        sendDemoNotification(chatState.name, chatState.email, chatState.company);
+      }
+
+    } else {
+      addBotMessage(body, "Thanks for your message — a member of our team will follow up with you shortly. You can also start your free Pilot at app.guardian-tprm.com right now.");
+    }
+    body.scrollTop = body.scrollHeight;
+  }, 600);
 }
-</script>
-</body>
+
+async function sendDemoNotification(name, email, company) {
+  try {
+    await fetch('https://czlqjrfmtpmiicfzuzys.supabase.co/functions/v1/hyper-service', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        to: 'sales@guardian-tprm.com',
+        subject: 'New Demo Request — Guardian TPRM',
+        html: `
+          <h2>New Demo Request</h2>
+          <p><strong>Name:</strong> ${name}</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Company:</strong> ${company}</p>
+          <p>Submitted via the Guardian TPRM website chat widget.</p>
+        `
+      })
+    });
+  } catch (err) {
+    console.error('Demo notification failed:', err);
+  }
+}
 </html>
