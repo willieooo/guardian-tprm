@@ -1352,30 +1352,120 @@
   function toggleChat() {
     document.getElementById('chat-panel').classList.toggle('open');
   }
-  function chatSelect(btn) {
-  const text = btn.textContent.trim();
-  const optionsDiv = btn.closest('.chat-options');
-  const body = btn.closest('.chat-body');
+  const chatState = { flow: null, step: null, name: '', email: '', company: '', topic: '' };
 
-  // Show user's selection as a message bubble
-  optionsDiv.innerHTML = '';
-  const userMsg = document.createElement('div');
-  userMsg.className = 'chat-message';
-  userMsg.style.cssText = 'background:var(--lblue);color:var(--navy);border-radius:12px 12px 4px 12px;margin-left:40px';
-  userMsg.textContent = text;
-  body.appendChild(userMsg);
-
-  setTimeout(() => {
-    if (text === 'I want to see a demo') {
-      chatState.flow = 'demo';
-      chatState.step = 'name';
-      addBotMessage(body, "Great! I'd love to set that up. What's your name?");
-    } else {
-      addBotMessage(body, "Thanks — a member of our team will follow up with you shortly. You can also start your free Pilot at app.guardian-tprm.com right now.");
-    }
+  function addBotMessage(body, text) {
+    const msg = document.createElement('div');
+    msg.className = 'chat-message';
+    msg.textContent = text;
+    body.appendChild(msg);
     body.scrollTop = body.scrollHeight;
-  }, 600);
-}
+  }
+
+  function chatSelect(btn) {
+    const text = btn.textContent.trim();
+    const optionsDiv = btn.closest('.chat-options');
+    const body = btn.closest('.chat-body');
+
+    optionsDiv.innerHTML = '';
+
+    const userMsg = document.createElement('div');
+    userMsg.className = 'chat-message';
+    userMsg.style.cssText = 'background:var(--lblue);color:var(--navy);border-radius:12px 12px 4px 12px;margin-left:40px';
+    userMsg.textContent = text;
+    body.appendChild(userMsg);
+
+    setTimeout(() => {
+      if (text === 'I want to see a demo') {
+        chatState.flow = 'collect';
+        chatState.step = 'name';
+        chatState.topic = 'Demo Request';
+        addBotMessage(body, "Great! I'd love to set that up. What's your name?");
+
+      } else if (text === 'I have a pricing question') {
+        chatState.flow = 'collect';
+        chatState.step = 'name';
+        chatState.topic = 'Pricing Question';
+        addBotMessage(body, "Happy to help with pricing. We have a free Pilot plan, Starter from $2,990/yr, and Professional from $5,990/yr — all one-time payments, no subscriptions. Let me get someone to walk you through the best fit. What's your name?");
+
+      } else if (text === 'I need help with CBN / NDPA compliance') {
+        chatState.flow = 'collect';
+        chatState.step = 'name';
+        chatState.topic = 'CBN / NDPA Compliance Enquiry';
+        addBotMessage(body, "Guardian TPRM is built to support CBN RCSF, CBN Open Banking, and the Nigeria Data Protection Act 2023 — so you're in the right place. Let me connect you with our team. What's your name?");
+
+      } else if (text === "I'm already a customer") {
+        chatState.flow = 'collect';
+        chatState.step = 'name';
+        chatState.topic = 'Existing Customer Support';
+        addBotMessage(body, "Welcome back! You can log in at app.guardian-tprm.com. If you need help, let me take your details and someone will be in touch. What's your name?");
+      }
+
+      body.scrollTop = body.scrollHeight;
+    }, 600);
+  }
+
+  function sendChatMessage() {
+    const input = document.querySelector('.chat-input');
+    const text = input.value.trim();
+    if (!text) return;
+    const body = document.querySelector('.chat-body');
+
+    const userMsg = document.createElement('div');
+    userMsg.className = 'chat-message';
+    userMsg.style.cssText = 'background:var(--lblue);color:var(--navy);border-radius:12px 12px 4px 12px;margin-left:40px';
+    userMsg.textContent = text;
+    body.appendChild(userMsg);
+    input.value = '';
+    body.scrollTop = body.scrollHeight;
+
+    setTimeout(() => {
+      if (chatState.flow === 'collect') {
+        if (chatState.step === 'name') {
+          chatState.name = text;
+          chatState.step = 'email';
+          addBotMessage(body, "Nice to meet you, " + text + "! What's your work email address?");
+
+        } else if (chatState.step === 'email') {
+          chatState.email = text;
+          chatState.step = 'company';
+          addBotMessage(body, "And which company are you with?");
+
+        } else if (chatState.step === 'company') {
+          chatState.company = text;
+          chatState.step = 'done';
+          addBotMessage(body, "Thank you! A member of our team will be in touch with you shortly. In the meantime, you're welcome to start your free Pilot at app.guardian-tprm.com.");
+          sendEnquiryNotification(chatState.name, chatState.email, chatState.company, chatState.topic);
+        }
+
+      } else {
+        addBotMessage(body, "Thanks for your message — a member of our team will follow up with you shortly. You can also start your free Pilot at app.guardian-tprm.com right now.");
+      }
+
+      body.scrollTop = body.scrollHeight;
+    }, 600);
+  }
+
+  async function sendEnquiryNotification(name, email, company, topic) {
+    try {
+      await fetch('https://czlqjrfmtpmiicfzuzys.supabase.co/functions/v1/hyper-service', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: 'sales@guardian-tprm.com',
+          subject: topic + ' — Guardian TPRM Website',
+          html:
+            '<h2>' + topic + '</h2>' +
+            '<p><strong>Name:</strong> ' + name + '</p>' +
+            '<p><strong>Email:</strong> ' + email + '</p>' +
+            '<p><strong>Company:</strong> ' + company + '</p>' +
+            '<p>Submitted via the Guardian TPRM website chat widget.</p>'
+        })
+      });
+    } catch (err) {
+      console.error('Enquiry notification failed:', err);
+    }
+  }
 
   // Demo form
   function submitDemo(e) {
