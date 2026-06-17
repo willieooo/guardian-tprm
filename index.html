@@ -1323,8 +1323,8 @@
     </div>
   </div>
   <div class="chat-input-row">
-    <input class="chat-input" placeholder="Type a message…">
-    <button class="chat-send"><i class="fa-solid fa-paper-plane"></i></button>
+    <input class="chat-input" placeholder="Type a message…" onkeydown="if(event.key==='Enter')sendChatMessage()">
+    <button class="chat-send" onclick="sendChatMessage()"><i class="fa-solid fa-paper-plane"></i></button>
   </div>
 </div>
 
@@ -1401,6 +1401,26 @@
       links.style.gap = '16px';
     }
   }
+  function sendChatMessage() {
+  const input = document.querySelector('.chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  const body = document.querySelector('.chat-body');
+  const userMsg = document.createElement('div');
+  userMsg.className = 'chat-message';
+  userMsg.style.cssText = 'background:var(--lblue);color:var(--navy);border-radius:12px 12px 4px 12px;margin-left:40px';
+  userMsg.textContent = text;
+  body.appendChild(userMsg);
+  input.value = '';
+  setTimeout(() => {
+    const reply = document.createElement('div');
+    reply.className = 'chat-message';
+    reply.textContent = 'Thanks for your message — a member of our team will follow up with you shortly. You can also start your free Pilot at app.guardian-tprm.com right now.';
+    body.appendChild(reply);
+    body.scrollTop = body.scrollHeight;
+  }, 800);
+  body.scrollTop = body.scrollHeight;
+}
 </script>
 </body>
 </html>
