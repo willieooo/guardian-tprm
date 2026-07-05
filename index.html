@@ -1471,8 +1471,37 @@
   // Demo form
   function submitDemo(e) {
     e.preventDefault();
+    const inputs = e.target.querySelectorAll('input, select');
+    const firstName = inputs[0].value.trim();
+    const lastName = inputs[1].value.trim();
+    const email = inputs[2].value.trim();
+    const org = inputs[3].value.trim();
+    const role = inputs[4].value.trim();
+    const country = inputs[5].value.trim();
+    const suppliers = inputs[6].value.trim();
+
     document.querySelector('.demo-form').style.display = 'none';
     document.getElementById('demo-success').style.display = 'block';
+
+    const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6bHFqcmZtdHBtaWljZnp1enlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NTU2ODMsImV4cCI6MjA5NjUzMTY4M30.ZuqNYAOqeOyIQq1vMRtaailvz-6vbNIxUc_BaEmtytU';
+    fetch('https://czlqjrfmtpmiicfzuzys.supabase.co/functions/v1/hyper-service', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': ANON_KEY,
+        'Authorization': 'Bearer ' + ANON_KEY
+      },
+      body: JSON.stringify({
+        type: 'contact_enquiry',
+        to: 'we26uk@yahoo.co.uk',
+        data: {
+          topic: 'Demo Request (Website Form)',
+          name: firstName + ' ' + lastName,
+          email: email,
+          company: org + ' | Role: ' + role + ' | Country: ' + country + ' | Suppliers: ' + suppliers
+        }
+      })
+    }).catch(err => console.error('Demo form notification failed:', err));
   }
 
   // Sticky CTA
