@@ -1449,12 +1449,15 @@
 
   async function sendEnquiryNotification(name, email, company, topic) {
     try {
+      const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6bHFqcmZtdHBtaWljZnp1enlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NTU2ODMsImV4cCI6MjA5NjUzMTY4M30.ZuqNYAOqeOyIQq1vMRtaailvz-6vbNIxUc_BaEmtytU';
       await fetch('https://czlqjrfmtpmiicfzuzys.supabase.co/functions/v1/hyper-service', {
+        method: 'POST',
         headers: {
-  'Content-Type': 'application/json',
-  'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6bHFqcmZtdHBtaWljZnp1enlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NTU2ODMsImV4cCI6MjA5NjUzMTY4M30.ZuqNYAOqeOyIQq1vMRtaailvz-6vbNIxUc_BaEmtytU',
-  'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6bHFqcmZtdHBtaWljZnp1enlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NTU2ODMsImV4cCI6MjA5NjUzMTY4M30.ZuqNYAOqeOyIQq1vMRtaailvz-6vbNIxUc_BaEmtytU'
-},
+          'Content-Type': 'application/json',
+          'apikey': ANON_KEY,
+          'Authorization': 'Bearer ' + ANON_KEY
+        },
+        body: JSON.stringify({
           type: 'contact_enquiry',
           to: 'sales@guardian-tprm.com',
           data: { topic, name, email, company }
