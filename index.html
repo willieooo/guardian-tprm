@@ -1449,18 +1449,18 @@
 
   async function sendEnquiryNotification(name, email, company, topic) {
     try {
+      const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6bHFqcmZtdHBtaWljZnp1enlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NTU2ODMsImV4cCI6MjA5NjUzMTY4M30.ZuqNYAOqeOyIQq1vMRtaailvz-6vbNIxUc_BaEmtytU';
       await fetch('https://czlqjrfmtpmiicfzuzys.supabase.co/functions/v1/hyper-service', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': ANON_KEY,
+          'Authorization': 'Bearer ' + ANON_KEY
+        },
         body: JSON.stringify({
+          type: 'contact_enquiry',
           to: 'sales@guardian-tprm.com',
-          subject: topic + ' — Guardian TPRM Website',
-          html:
-            '<h2>' + topic + '</h2>' +
-            '<p><strong>Name:</strong> ' + name + '</p>' +
-            '<p><strong>Email:</strong> ' + email + '</p>' +
-            '<p><strong>Company:</strong> ' + company + '</p>' +
-            '<p>Submitted via the Guardian TPRM website chat widget.</p>'
+          data: { topic, name, email, company }
         })
       });
     } catch (err) {
